@@ -25,22 +25,29 @@ export default function Projects() {
                 return;
             }
 
-            // Récupérer le rôle de l'utilisateur depuis la base de données via Prisma
-            const user = await prisma.user.findUnique({
-                where: { email: authData.user.email },
-            });
+            try {
+                const response = await fetch(`/api/user?email=${authData.user.email}`);
+                if (!response.ok) {
+                    throw new Error("Utilisateur non trouvé ou erreur serveur");
+                }
+                const userData = await response.json();
 
-            if (!user || user.role !== "admin") {
-                router.push("/"); // Rediriger l'utilisateur si ce n'est pas un admin
-                return;
+                if (userData.role !== "admin") {
+                    router.push("/"); // Assure-toi que c'est une route valide
+                    return;
+                }
+
+                setUser({
+                    email: userData.email,
+                    pseudo: userData.pseudo,
+                    role: userData.role,
+                });
+            } catch (error) {
+                console.error("Erreur lors de la récupération de l'utilisateur:", error);
+                router.push("/");
+            } finally {
+                setLoading(false); // Toujours stopper le chargement
             }
-
-            setUser({
-                email: user.email,
-                pseudo: user.pseudo,
-                role: user.role,
-            });
-            setLoading(false);
         };
 
         fetchUser();
@@ -56,16 +63,17 @@ export default function Projects() {
         }
 
         try {
-            // Créer un nouveau projet
-            const newProject = await prisma.project.create({
-                data: {
-                    title,
-                    description,
-                    imageUrl,
-                },
+            const response = await fetch("/api/project", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, description, imageUrl }),
             });
 
-            console.log("Nouveau projet ajouté:", newProject);
+            if (!response.ok) throw new Error("Erreur lors de la création du projet");
+
+            const newProject = await response.json();
+            console.log("Projet ajouté:", newProject);
+
             setTitle("");
             setDescription("");
             setImageUrl("");

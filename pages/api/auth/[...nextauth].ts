@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { createClient } from "@supabase/supabase-js";
-import { prisma } from "@/lib/prisma"; // Assure-toi que Prisma est bien configuré
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcrypt"; // Pour hasher le mot de passe
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,7 +16,7 @@ export default NextAuth({
             credentials: {
                 email: { label: "Email", type: "text" },
                 password: { label: "Password", type: "password" },
-                pseudo: { label: "Pseudo", type: "text" }, // Ajout du pseudo pour l'inscription
+                pseudo: { label: "Pseudo", type: "text" },
             },
             async authorize(credentials) {
                 const email = credentials?.email ?? "";
@@ -23,21 +24,19 @@ export default NextAuth({
                 const pseudo = credentials?.pseudo ?? "";
 
                 if (!email || !password || !pseudo) {
-                    throw new Error("Email, password et pseudo sont requis.");
+                    throw new Error("Tous les champs sont requis.");
                 }
 
-                // Vérifier si l'utilisateur existe déjà
-                const { data: existingUser } = await supabase
-                    .from("users")
-                    .select("*")
-                    .or(`email.eq.${email},pseudo.eq.${pseudo}`)
-                    .single();
+                // Vérifier si l'utilisateur existe déjà dans Prisma
+                const existingUser = await prisma.user.findFirst({
+                    where: { OR: [{ email }, { pseudo }] },
+                });
 
                 if (existingUser) {
                     throw new Error("Cet email ou pseudo est déjà utilisé.");
                 }
 
-                // Inscription de l'utilisateur avec Supabase Auth
+                // Inscrire l'utilisateur avec Supabase Auth
                 const { data: authData, error: authError } = await supabase.auth.signUp({
                     email,
                     password,
@@ -51,20 +50,16 @@ export default NextAuth({
                     throw new Error(authError?.message || "Erreur lors de l'inscription");
                 }
 
-                // Vérifier si l'utilisateur a confirmé son email
-                if (!authData.user?.confirmed_at) {
-                    throw new Error(
-                        "Inscription réussie ! Vérifiez votre email pour confirmer votre compte avant de vous connecter."
-                    );
-                }
+                // Hasher le mot de passe avant de l'ajouter dans la base de données Prisma
+                const hashedPassword = await bcrypt.hash(password, 10);
 
-                // Créer l'utilisateur dans Prisma
+                // Ajouter l'utilisateur dans la base Prisma
                 await prisma.user.create({
                     data: {
                         id: authData.user.id,
                         email: authData.user.email!,
                         pseudo,
-                        password, // ⚠️ À remplacer par un hash sécurisé
+                        password: hashedPassword, // Hashed password au lieu du mot de passe en clair
                         role: "user",
                     },
                 });
@@ -74,7 +69,7 @@ export default NextAuth({
                     email: authData.user.email!,
                     role: "user",
                 };
-            }
+            },
         }),
     ],
     session: {
@@ -84,14 +79,14 @@ export default NextAuth({
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
-                token.role = user.role || "user"; // Assurer que role est une chaîne
+                token.role = user.role || "user";
             }
             return token;
         },
         async session({ session, token }) {
             if (token) {
-                session.user.id = token.id as string; // Assurer que id est une chaîne
-                session.user.role = token.role as string || "user"; // Assurer que role est une chaîne
+                session.user.id = token.id as string;
+                session.user.role = token.role as string || "user";
             }
             return session;
         },
