@@ -1,58 +1,28 @@
-"use client";
-
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-// @ts-ignore
-import { prisma } from "@/lib/prisma"; // Assure-toi que Prisma est configuré dans lib/prisma
+import { signIn } from "next-auth/react"; // Utiliser signIn de NextAuth
 
 export default function SignUp() {
     const [pseudo, setPseudo] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const router = useRouter();
-    const supabase = createClientComponentClient();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
 
-        // Vérifier si le pseudo ou l'email est déjà utilisé
-        const { data: existingUser } = await supabase
-            .from("users")
-            .select("*")
-            .or(`email.eq.${email},pseudo.eq.${pseudo}`)
-            .single();
-
-        if (existingUser) {
-            setError("Ce pseudo ou cet email est déjà utilisé.");
-            return;
-        }
-
-        // Inscription avec Supabase Auth
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const response = await signIn("credentials", {
+            redirect: false,
             email,
             password,
-            options: {
-                emailRedirectTo: `${location.origin}/auth/callback`,
-                data: { pseudo },
-            },
+            pseudo, // Ajouter le pseudo ici pour l'inscription
         });
 
-        if (authError) {
-            setError(authError.message);
+        if (response?.error) {
+            setError(response.error);
         } else {
-            // Insérer l'utilisateur dans la table `users` avec Prisma
-            await prisma.user.create({
-                data: {
-                    email: authData.user.email,
-                    pseudo: pseudo,
-                    password: password, // Pense à hasher le mot de passe avant de le stocker
-                    role: "user", // Par défaut, attribuer un rôle utilisateur
-                },
-            });
-            router.push("/auth/signin"); // Rediriger vers la page de connexion
+            // L'utilisateur a été inscrit et connecté avec succès
+            window.location.href = "/auth/signin"; // Redirection vers la page de connexion
         }
     };
 
