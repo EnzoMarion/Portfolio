@@ -101,7 +101,7 @@ export default function AddProject() {
                     />
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="imageUrl" className="block text-gray-300">URL de l'image</label>
+                    <label htmlFor="imageUrl" className="block text-gray-300">URL de l&apos;image</label>
                     <input
                         type="text"
                         id="imageUrl"

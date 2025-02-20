@@ -16,7 +16,6 @@ interface Project {
 }
 
 export default function ModifyProject() {
-    const [user, setUser] = useState<{ email: string; pseudo: string; role: string } | null>(null);
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -41,7 +40,6 @@ export default function ModifyProject() {
                 if (!response.ok) throw new Error("Utilisateur non trouvé");
 
                 const userData = await response.json();
-                setUser(userData);
 
                 // Vérification du rôle utilisateur
                 if (userData.role !== "admin") {
@@ -105,7 +103,7 @@ export default function ModifyProject() {
 
             if (!response.ok) throw new Error("Erreur lors de la mise à jour du projet");
 
-            const updatedProject = await response.json();
+            // Nous n'utilisons plus 'updatedProject', donc cette ligne est supprimée
             router.push("/projects");
             alert("Le projet a été mis à jour avec succès");
         } catch (error) {
@@ -159,7 +157,7 @@ export default function ModifyProject() {
                     </div>
 
                     <div>
-                        <label htmlFor="moreUrl" className="block">URL plus d'infos</label>
+                        <label htmlFor="moreUrl" className="block">URL plus d&apos;infos</label>
                         <input
                             id="moreUrl"
                             type="url"

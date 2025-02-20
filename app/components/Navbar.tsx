@@ -5,10 +5,16 @@ import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Link from "next/link";
 
+// Définir un type pour l'utilisateur
+interface User {
+    email: string;
+    pseudo: string;
+}
+
 const supabase = createClientComponentClient();
 
 export default function Navbar() {
-    const [user, setUser] = useState<any>(null); // Utiliser useState pour stocker l'utilisateur
+    const [user, setUser] = useState<User | null>(null); // Utilisation du type défini
     const router = useRouter();
 
     // Fonction de déconnexion
@@ -24,14 +30,15 @@ export default function Navbar() {
             if (authError) {
                 console.error("Erreur lors de la récupération de l'utilisateur", authError);
             }
-            setUser(authData?.user || null);
+            // Utilisation d'une valeur par défaut pour email
+            setUser(authData?.user ? { email: authData.user.email || "", pseudo: authData.user.user_metadata?.pseudo || 'Pseudo' } : null);
         };
 
         fetchUser(); // Appeler la fonction au chargement du composant
 
         // Optionnel : écouter les changements d'authentification
         const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user || null);
+            setUser(session?.user ? { email: session.user.email || "", pseudo: session.user.user_metadata?.pseudo || 'Pseudo' } : null);
         });
 
         // Retourner la fonction de nettoyage pour désabonner l'écouteur
@@ -46,7 +53,7 @@ export default function Navbar() {
                 <Link href="/" className="hover:text-green-500 text-white">
                     <div className="text-xl text-white">Enzo Marion</div>
                 </Link>
-                <div className="flex space-x-8"> {/* Augmenter l'espace horizontal ici */}
+                <div className="flex space-x-8">
                     <Link href="/projects" className="hover:text-green-500 text-white">
                         Projets
                     </Link>
@@ -56,16 +63,11 @@ export default function Navbar() {
                     <Link href="/profile" className="hover:text-green-500 text-white">
                         Profil
                     </Link>
-                    {user && (
-                        <Link href="/admin" className="hover:text-green-500 text-white">
-                            Admin
-                        </Link>
-                    )}
                 </div>
-                <div className="flex items-center space-x-6"> {/* Ajustement de l'espace ici */}
+                <div className="flex items-center space-x-6">
                     {user ? (
                         <>
-                            <p className="text-sm text-white">{user.user_metadata?.pseudo || "Pseudo"}</p>
+                            <p className="text-sm text-white">{user.pseudo}</p>
                             <button
                                 onClick={handleSignOut}
                                 className="text-sm text-red-500 hover:text-red-600"
