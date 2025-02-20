@@ -3,17 +3,20 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { prisma } from "@/lib/prisma"; // Assure-toi que Prisma est configuré dans lib/prisma
 
 const supabase = createClientComponentClient();
 
+interface Project {
+    id: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+}
+
 export default function Projects() {
     const [user, setUser] = useState<{ email: string; pseudo: string; role: string } | null>(null);
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [imageUrl, setImageUrl] = useState("");
+    const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const router = useRouter();
 
     useEffect(() => {
@@ -27,131 +30,54 @@ export default function Projects() {
 
             try {
                 const response = await fetch(`/api/user?email=${authData.user.email}`);
-                if (!response.ok) {
-                    throw new Error("Utilisateur non trouvé ou erreur serveur");
-                }
+                if (!response.ok) throw new Error("Utilisateur non trouvé");
+
                 const userData = await response.json();
-
-                if (userData.role !== "admin") {
-                    router.push("/"); // Assure-toi que c'est une route valide
-                    return;
-                }
-
-                setUser({
-                    email: userData.email,
-                    pseudo: userData.pseudo,
-                    role: userData.role,
-                });
+                setUser(userData);
             } catch (error) {
-                console.error("Erreur lors de la récupération de l'utilisateur:", error);
                 router.push("/");
-            } finally {
-                setLoading(false); // Toujours stopper le chargement
             }
         };
 
+        const fetchProjects = async () => {
+            try {
+                const response = await fetch("/api/projects");
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la récupération des projets");
+                }
+                const data = await response.json();
+                setProjects(data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+
         fetchUser();
+        fetchProjects();
+        setLoading(false);
     }, [router]);
 
-    const handleProjectSubmit = async (event: React.FormEvent) => {
-        event.preventDefault();
-        setError("");
-
-        if (!title || !description || !imageUrl) {
-            setError("Tous les champs sont requis.");
-            return;
-        }
-
-        try {
-            const response = await fetch("/api/project", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, description, imageUrl }),
-            });
-
-            if (!response.ok) throw new Error("Erreur lors de la création du projet");
-
-            const newProject = await response.json();
-            console.log("Projet ajouté:", newProject);
-
-            setTitle("");
-            setDescription("");
-            setImageUrl("");
-        } catch (error) {
-            setError("Erreur lors de la création du projet.");
-            console.error(error);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-900">
-                <p className="text-white">Chargement en cours...</p>
-            </div>
-        );
-    }
-
-    if (!user) {
-        return null;
-    }
+    if (loading) return <p className="text-white">Chargement...</p>;
 
     return (
         <div className="min-h-screen bg-gray-900 text-white">
-            <div className="flex justify-between p-4">
-                <h1 className="text-3xl">Gestion des projets</h1>
-                <div>
-                    <p>{user.pseudo}</p>
-                    <button
-                        onClick={async () => {
-                            await supabase.auth.signOut();
-                            router.push("/auth/signin");
-                        }}
-                        className="mt-2 bg-red-500 hover:bg-red-600 p-2 rounded"
-                    >
-                        Se déconnecter
-                    </button>
-                </div>
+            <h1 className="text-3xl p-4">Projets</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                {projects.map((project) => (
+                    <div key={project.id} className="p-4 bg-gray-800 rounded-lg shadow-md">
+                        <img src={project.imageUrl} alt={project.title} className="w-full h-40 object-cover rounded" />
+                        <h2 className="text-xl font-bold mt-2">{project.title}</h2>
+                        <p className="text-gray-300">{project.description}</p>
+                        {user?.role === "admin" && (
+                            <div className="mt-2 flex space-x-2">
+                                <button className="bg-yellow-500 p-2 rounded">Modifier</button>
+                                <button className="bg-red-500 p-2 rounded">Supprimer</button>
+                            </div>
+                        )}
+                    </div>
+                ))}
             </div>
-
-            <form onSubmit={handleProjectSubmit} className="w-96 mx-auto space-y-4">
-                {error && <p className="text-red-500">{error}</p>}
-
-                <input
-                    type="text"
-                    name="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Titre du projet"
-                    className="w-full p-2 rounded bg-gray-800 border border-gray-700"
-                    required
-                />
-
-                <textarea
-                    name="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Description du projet"
-                    className="w-full p-2 rounded bg-gray-800 border border-gray-700"
-                    required
-                />
-
-                <input
-                    type="text"
-                    name="imageUrl"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="URL de l'image du projet"
-                    className="w-full p-2 rounded bg-gray-800 border border-gray-700"
-                    required
-                />
-
-                <button
-                    type="submit"
-                    className="w-full bg-green-500 hover:bg-green-600 p-2 rounded"
-                >
-                    Ajouter un projet
-                </button>
-            </form>
         </div>
     );
 }

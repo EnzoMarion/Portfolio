@@ -30,6 +30,7 @@ model Project {
   title       String
   description String
   imageUrl    String
+  moreUrl     String?
   createdAt   DateTime  @default(now())
   reactions   Reaction[] @relation("ProjectReactions")
 }
