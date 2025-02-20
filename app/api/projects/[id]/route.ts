@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// On type les params correctement
+type Props = {
+    params: {
+        id: string;
+    };
+};
+
 // Supprimer un projet (DELETE)
 export async function DELETE(
     req: NextRequest,
-    context: { params: { id: string } }
+    { params }: Props
 ) {
-    const { id } = context.params;
+    const { id } = params;
     try {
         const project = await prisma.project.delete({
             where: { id },
@@ -24,9 +31,9 @@ export async function DELETE(
 // Mise à jour d'un projet (PUT)
 export async function PUT(
     req: NextRequest,
-    context: { params: { id: string } }
+    { params }: Props
 ) {
-    const { id } = context.params;
+    const { id } = params;
     const { title, description, imageUrl, moreUrl } = await req.json();
     try {
         const updatedProject = await prisma.project.update({
@@ -46,9 +53,9 @@ export async function PUT(
 // Récupérer un projet (GET)
 export async function GET(
     req: NextRequest,
-    context: { params: { id: string } }
+    { params }: Props
 ) {
-    const { id } = context.params;
+    const { id } = params;
     try {
         const project = await prisma.project.findUnique({
             where: { id },
