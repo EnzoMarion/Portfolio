@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-interface RouteParams {
-    params: { id: string }
-    searchParams: { [key: string]: string | string[] | undefined }
-}
-
-// Récupérer un projet (GET)
 export async function GET(
     request: NextRequest,
-    params: RouteParams
+    { params }: { params: { [key: string]: string | string[] } }
 ) {
-    const id = params.params.id;
+    const id = params.id as string;
     try {
         const project = await prisma.project.findUnique({
             where: { id },
@@ -32,12 +26,11 @@ export async function GET(
     }
 }
 
-// Mise à jour d'un projet (PUT)
 export async function PUT(
     request: NextRequest,
-    params: RouteParams
+    { params }: { params: { [key: string]: string | string[] } }
 ) {
-    const id = params.params.id;
+    const id = params.id as string;
     const { title, description, imageUrl, moreUrl } = await request.json();
     try {
         const updatedProject = await prisma.project.update({
@@ -54,12 +47,11 @@ export async function PUT(
     }
 }
 
-// Supprimer un projet (DELETE)
 export async function DELETE(
     request: NextRequest,
-    params: RouteParams
+    { params }: { params: { [key: string]: string | string[] } }
 ) {
-    const id = params.params.id;
+    const id = params.id as string;
     try {
         const project = await prisma.project.delete({
             where: { id },
