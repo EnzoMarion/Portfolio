@@ -56,7 +56,7 @@ export default function SignIn() {
                     router.push("/dashboard");
                 }
             }
-        } catch (error) {
+        } catch {
             setError("Une erreur est survenue lors de la connexion.");
         }
     };

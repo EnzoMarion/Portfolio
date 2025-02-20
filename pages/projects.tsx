@@ -35,7 +35,8 @@ export default function Projects() {
 
                 const userData = await response.json();
                 setUser(userData);
-            } catch (error) {
+            } catch (error: any) {
+                console.error("Erreur lors de la récupération de l'utilisateur:", error);
                 router.push("/");
             }
         };
@@ -48,8 +49,8 @@ export default function Projects() {
                 }
                 const data = await response.json();
                 setProjects(data);
-            } catch (error) {
-                console.error(error);
+            } catch (error: any) {
+                console.error("Erreur lors de la récupération des projets:", error);
             }
         };
 
