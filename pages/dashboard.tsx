@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import Link from "next/link"; // Importation de Link
+import Navbar from "../app/components/Navbar"; // Importation de la Navbar
 
 const supabase = createClientComponentClient();
 
@@ -52,34 +52,7 @@ export default function Dashboard() {
 
     return (
         <div className="min-h-screen bg-gray-900 text-white">
-            <nav className="bg-gray-800 p-4">
-                <div className="flex justify-between items-center">
-                    <div className="text-xl">Mon Portfolio</div>
-                    <div className="flex space-x-4">
-                        <Link href="/projects" className="hover:text-green-500">
-                            Projets
-                        </Link>
-                        <Link href="/news" className="hover:text-green-500">
-                            Actualités
-                        </Link>
-                        <Link href="/profile" className="hover:text-green-500">
-                            Profil
-                        </Link>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <p className="text-sm">{user.pseudo}</p>
-                        <button
-                            onClick={async () => {
-                                await supabase.auth.signOut();
-                                router.push("/auth/signin");
-                            }}
-                            className="text-sm text-red-500 hover:text-red-600"
-                        >
-                            Se déconnecter
-                        </button>
-                    </div>
-                </div>
-            </nav>
+            <Navbar />
 
             <div className="flex flex-col items-center justify-center mt-10">
                 <h1 className="text-3xl">Bienvenue, {user.pseudo} !</h1>
@@ -88,12 +61,10 @@ export default function Dashboard() {
 
             <div className="mt-10 mx-4">
                 <h2 className="text-2xl">Mes Projets</h2>
-                {/* Tu peux ici lister tes projets récupérés de ta base de données Prisma */}
             </div>
 
             <div className="mt-10 mx-4">
                 <h2 className="text-2xl">Mes Actualités</h2>
-                {/* Idem pour les actualités */}
             </div>
         </div>
     );
