@@ -16,7 +16,8 @@ export default function SignUp() {
         e.preventDefault();
         setError("");
 
-        const { data, error: signUpError } = await supabase.auth.signUp({
+        // Ne récupérer que l'erreur, car "data" n'est pas utilisée
+        const { error: signUpError } = await supabase.auth.signUp({
             email,
             password,
             options: { data: { pseudo } },
@@ -27,7 +28,7 @@ export default function SignUp() {
         } else {
             // Affiche un message pour dire à l'utilisateur de vérifier sa boîte email
             alert("Merci de vérifier votre email pour confirmer votre compte.");
-            // Par exemple, redirige vers une page dédiée à la vérification de l'email
+            // Redirection vers la page de vérification de l'email
             router.push("/auth/verify-email");
         }
     };
