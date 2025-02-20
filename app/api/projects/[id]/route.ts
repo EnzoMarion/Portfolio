@@ -1,21 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Supprimer un projet (DELETE)
-export async function DELETE(
+interface RouteParams {
+    params: { id: string }
+    searchParams: { [key: string]: string | string[] | undefined }
+}
+
+// Récupérer un projet (GET)
+export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    params: RouteParams
 ) {
-    const id = params.id;
+    const id = params.params.id;
     try {
-        const project = await prisma.project.delete({
+        const project = await prisma.project.findUnique({
             where: { id },
         });
+        if (!project) {
+            return NextResponse.json(
+                { error: "Projet non trouvé" },
+                { status: 404 }
+            );
+        }
         return NextResponse.json(project, { status: 200 });
     } catch (error) {
         console.error(error);
         return NextResponse.json(
-            { error: "Erreur lors de la suppression du projet" },
+            { error: "Erreur lors de la récupération du projet" },
             { status: 500 }
         );
     }
@@ -24,9 +35,9 @@ export async function DELETE(
 // Mise à jour d'un projet (PUT)
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    params: RouteParams
 ) {
-    const id = params.id;
+    const id = params.params.id;
     const { title, description, imageUrl, moreUrl } = await request.json();
     try {
         const updatedProject = await prisma.project.update({
@@ -43,27 +54,21 @@ export async function PUT(
     }
 }
 
-// Récupérer un projet (GET)
-export async function GET(
+// Supprimer un projet (DELETE)
+export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    params: RouteParams
 ) {
-    const id = params.id;
+    const id = params.params.id;
     try {
-        const project = await prisma.project.findUnique({
+        const project = await prisma.project.delete({
             where: { id },
         });
-        if (!project) {
-            return NextResponse.json(
-                { error: "Projet non trouvé" },
-                { status: 404 }
-            );
-        }
         return NextResponse.json(project, { status: 200 });
     } catch (error) {
         console.error(error);
         return NextResponse.json(
-            { error: "Erreur lors de la récupération du projet" },
+            { error: "Erreur lors de la suppression du projet" },
             { status: 500 }
         );
     }
