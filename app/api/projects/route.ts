@@ -17,12 +17,13 @@ export async function POST(req: NextRequest) {
     try {
         const { title, description, imageUrl, moreUrl } = await req.json();
 
-        if (!title || !description || !imageUrl || !moreUrl) {
-            return NextResponse.json({ error: "Tous les champs sont requis" }, { status: 400 });
+        // Rendre moreUrl optionnel
+        if (!title || !description || !imageUrl) {
+            return NextResponse.json({ error: "Tous les champs sauf 'moreUrl' sont requis" }, { status: 400 });
         }
 
         const newProject = await prisma.project.create({
-            data: { title, description, imageUrl, moreUrl },
+            data: { title, description, imageUrl, moreUrl: moreUrl || null }, // Si moreUrl n'est pas défini, on l'assigne à null
         });
 
         return NextResponse.json(newProject, { status: 201 });
@@ -31,3 +32,4 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Erreur lors de la création du projet" }, { status: 500 });
     }
 }
+

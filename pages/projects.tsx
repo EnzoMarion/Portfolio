@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import Image from "next/image"; // Importation du composant Image
+import Image from "next/image";
 
 const supabase = createClientComponentClient();
 
@@ -69,9 +69,41 @@ export default function Projects() {
 
     if (loading) return <p className="text-white">Chargement...</p>;
 
+    // Fonction pour supprimer un projet
+    const handleDelete = async (id: string) => {
+        if (window.confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
+            try {
+                const response = await fetch(`/api/projects/${id}`, {
+                    method: "DELETE",
+                });
+
+                if (response.ok) {
+                    setProjects((prevProjects) => prevProjects.filter((project) => project.id !== id));
+                    alert("Le projet a été supprimé avec succès");
+                } else {
+                    throw new Error("Erreur lors de la suppression du projet");
+                }
+            } catch (error) {
+                alert("Erreur lors de la suppression du projet");
+                console.error(error);
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-900 text-white">
             <h1 className="text-3xl p-4">Projets</h1>
+
+            {/* Button to add a new project, only for admins */}
+            {user?.role === "admin" && (
+                <button
+                    onClick={() => router.push("/projects/add")}
+                    className="bg-green-500 p-2 rounded mb-4"
+                >
+                    Ajouter un projet
+                </button>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                 {projects.map((project) => (
                     <div key={project.id} className="p-4 bg-gray-800 rounded-lg shadow-md">
@@ -86,8 +118,18 @@ export default function Projects() {
                         <p className="text-gray-300">{project.description}</p>
                         {user?.role === "admin" && (
                             <div className="mt-2 flex space-x-2">
-                                <button className="bg-yellow-500 p-2 rounded">Modifier</button>
-                                <button className="bg-red-500 p-2 rounded">Supprimer</button>
+                                <button
+                                    onClick={() => router.push(`/projects/${project.id}/modify`)} // Redirection vers la page de modification
+                                    className="bg-yellow-500 p-2 rounded"
+                                >
+                                    Modifier
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(project.id)} // Supprimer le projet
+                                    className="bg-red-500 p-2 rounded"
+                                >
+                                    Supprimer
+                                </button>
                             </div>
                         )}
                     </div>
@@ -95,4 +137,5 @@ export default function Projects() {
             </div>
         </div>
     );
+
 }
