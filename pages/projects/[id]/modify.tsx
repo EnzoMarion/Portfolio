@@ -157,7 +157,7 @@ export default function ModifyProject() {
                     </div>
 
                     <div>
-                        <label htmlFor="moreUrl" className="block">URL plus d&apos;infos</label>
+                        <label htmlFor="moreUrl" className="block">URL plus d'infos</label>
                         <input
                             id="moreUrl"
                             type="url"
