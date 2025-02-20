@@ -145,7 +145,7 @@ export default function ModifyProject() {
                     </div>
 
                     <div>
-                        <label htmlFor="imageUrl" className="block">URL de l'image</label>
+                        <label htmlFor="imageUrl" className="block">URL de l&apos;image</label>
                         <input
                             id="imageUrl"
                             type="url"
@@ -157,7 +157,7 @@ export default function ModifyProject() {
                     </div>
 
                     <div>
-                        <label htmlFor="moreUrl" className="block">URL plus d'infos</label>
+                        <label htmlFor="moreUrl" className="block">URL plus d&apos;infos</label>
                         <input
                             id="moreUrl"
                             type="url"
