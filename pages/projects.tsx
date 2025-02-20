@@ -35,8 +35,12 @@ export default function Projects() {
 
                 const userData = await response.json();
                 setUser(userData);
-            } catch (error: any) {
-                console.error("Erreur lors de la récupération de l'utilisateur:", error);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error("Erreur lors de la récupération de l'utilisateur:", error.message);
+                } else {
+                    console.error("Erreur inconnue lors de la récupération de l'utilisateur.");
+                }
                 router.push("/");
             }
         };
@@ -49,11 +53,14 @@ export default function Projects() {
                 }
                 const data = await response.json();
                 setProjects(data);
-            } catch (error: any) {
-                console.error("Erreur lors de la récupération des projets:", error);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error("Erreur lors de la récupération des projets:", error.message);
+                } else {
+                    console.error("Erreur inconnue lors de la récupération des projets.");
+                }
             }
         };
-
 
         fetchUser();
         fetchProjects();
