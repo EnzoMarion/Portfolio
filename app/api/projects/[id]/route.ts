@@ -4,11 +4,13 @@ import { prisma } from "@/lib/prisma";
 // Récupérer un projet par ID (GET)
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } } // Assurer que params.id est une string
+    context: any // ❌ Pas de typage explicite
 ) {
     try {
+        const { id } = context.params; // ✅ On récupère params correctement
+
         const project = await prisma.project.findUnique({
-            where: { id: params.id }, // L'ID est bien une string
+            where: { id },
         });
 
         if (!project) {
@@ -22,34 +24,13 @@ export async function GET(
     }
 }
 
-// Mettre à jour un projet (PUT)
-export async function PUT(
-    request: NextRequest,
-    { params }: { params: { id: string } }
-) {
-    try {
-        const { title, description, imageUrl, moreUrl } = await request.json();
-
-        const updatedProject = await prisma.project.update({
-            where: { id: params.id },
-            data: { title, description, imageUrl, moreUrl },
-        });
-
-        return NextResponse.json(updatedProject, { status: 200 });
-    } catch (error) {
-        console.error(error);
-        return NextResponse.json({ error: "Erreur lors de la mise à jour du projet" }, { status: 500 });
-    }
-}
-
 // Supprimer un projet (DELETE)
-export async function DELETE(
-    request: NextRequest,
-    { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
     try {
+        const { id } = context.params;
+
         const deletedProject = await prisma.project.delete({
-            where: { id: params.id },
+            where: { id },
         });
 
         return NextResponse.json(deletedProject, { status: 200 });
