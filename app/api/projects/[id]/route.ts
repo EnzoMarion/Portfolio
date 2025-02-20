@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // Supprimer un projet (DELETE)
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+    const { id } = context.params;
 
     try {
         const project = await prisma.project.delete({
@@ -16,8 +16,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function PUT(req: NextRequest, context: { params: { id: string } }) {
+    const { id } = context.params;
     const { title, description, imageUrl, moreUrl } = await req.json();
 
     try {
@@ -32,8 +32,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         return NextResponse.json({ error: "Erreur lors de la mise à jour du projet" }, { status: 500 });
     }
 }
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params;
+
+export async function GET(req: NextRequest, context: { params: { id: string } }) {
+    const { id } = context.params;
 
     try {
         const project = await prisma.project.findUnique({
