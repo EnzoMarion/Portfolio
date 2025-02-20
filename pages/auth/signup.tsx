@@ -1,29 +1,34 @@
+"use client";
 import { useState } from "react";
-import { signIn } from "next-auth/react"; // Utiliser signIn de NextAuth
-import Link from "next/link"; // Importation de Link
+import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Link from "next/link";
 
 export default function SignUp() {
     const [pseudo, setPseudo] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const router = useRouter();
+    const supabase = createClientComponentClient();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
 
-        const response = await signIn("credentials", {
-            redirect: false,
+        const { data, error: signUpError } = await supabase.auth.signUp({
             email,
             password,
-            pseudo, // Ajouter le pseudo ici pour l'inscription
+            options: { data: { pseudo } },
         });
 
-        if (response?.error) {
-            setError(response.error);
+        if (signUpError) {
+            setError(signUpError.message);
         } else {
-            // L'utilisateur a été inscrit et connecté avec succès
-            window.location.href = "/auth/signin"; // Redirection vers la page de connexion
+            // Affiche un message pour dire à l'utilisateur de vérifier sa boîte email
+            alert("Merci de vérifier votre email pour confirmer votre compte.");
+            // Par exemple, redirige vers une page dédiée à la vérification de l'email
+            router.push("/auth/verify-email");
         }
     };
 
@@ -57,7 +62,7 @@ export default function SignUp() {
                     required
                 />
                 <button type="submit" className="w-full bg-green-500 hover:bg-green-600 p-2 rounded">
-                    S&apos;inscrire {/* Remplacer le guillemet par &apos; */}
+                    S&apos;inscrire
                 </button>
             </form>
             <p className="mt-4">

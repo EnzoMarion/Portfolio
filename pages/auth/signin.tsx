@@ -1,14 +1,13 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import Link from "next/link"; // Importation de Link
+import Link from "next/link";
 
 export default function SignIn() {
-    const [identifier, setIdentifier] = useState(""); // Email ou pseudo
+    const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState(""); // Toujours utilisé pour afficher les erreurs
+    const [error, setError] = useState("");
     const router = useRouter();
     const supabase = createClientComponentClient();
 
@@ -18,47 +17,40 @@ export default function SignIn() {
 
         const isEmail = identifier.includes("@");
 
-        try {
-            // Si l'identifiant est un email
-            if (isEmail) {
-                const { error: authError } = await supabase.auth.signInWithPassword({
-                    email: identifier,
-                    password,
-                });
+        let emailToUse = identifier;
 
-                if (authError) {
-                    setError(`Erreur de connexion : ${authError.message}`);
-                } else {
-                    router.push("/dashboard");
-                }
-            } else {
-                // Si c'est un pseudo, récupérer l'email associé et se connecter
-                const { data: userData, error: userError } = await supabase
-                    .from("users")
-                    .select("email")
-                    .eq("pseudo", identifier)
-                    .single();
+        // Si l'utilisateur se connecte avec un pseudo, récupérer l'email associé
+        if (!isEmail) {
+            const { data: userData, error: userError } = await supabase
+                .from("users")
+                .select("email")
+                .eq("pseudo", identifier)
+                .single();
 
-                if (userError || !userData) {
-                    setError("Aucun utilisateur trouvé avec ce pseudo.");
-                    return;
-                }
-
-                // Se connecter avec l'email trouvé
-                const { error: authError } = await supabase.auth.signInWithPassword({
-                    email: userData.email,
-                    password,
-                });
-
-                if (authError) {
-                    setError(`Erreur de connexion : ${authError.message}`);
-                } else {
-                    router.push("/dashboard");
-                }
+            if (userError || !userData) {
+                setError("Aucun utilisateur trouvé avec ce pseudo.");
+                return;
             }
-        } catch {
-            setError("Une erreur est survenue lors de la connexion.");
+            emailToUse = userData.email;
         }
+
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email: emailToUse,
+            password,
+        });
+
+        if (authError) {
+            setError(`Erreur de connexion : ${authError.message}`);
+            return;
+        }
+
+        // Vérifier que l'email est confirmé
+        if (!authData.user?.confirmed_at) {
+            setError("Merci de confirmer votre email avant de vous connecter.");
+            return;
+        }
+
+        router.push("/dashboard");
     };
 
     return (
