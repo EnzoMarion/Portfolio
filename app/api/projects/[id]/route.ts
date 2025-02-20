@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// ✅ Récupérer un projet par ID
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+    request: NextRequest,
+    { params }: { params: { id: string | string[] } }
+) {
     try {
-        const { id } = params; // ✅ Récupère l'ID directement depuis params
+        // Si c'est un tableau, on prend le premier élément
+        const id = Array.isArray(params.id) ? params.id[0] : params.id;
         const project = await prisma.project.findUnique({ where: { id } });
 
         if (!project) {
@@ -18,10 +21,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 }
 
-// ✅ Mettre à jour un projet par ID
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+    request: NextRequest,
+    { params }: { params: { id: string | string[] } }
+) {
     try {
-        const { id } = params;
+        const id = Array.isArray(params.id) ? params.id[0] : params.id;
         const body = await request.json();
 
         const updatedProject = await prisma.project.update({
@@ -36,13 +41,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 }
 
-// ✅ Supprimer un projet par ID
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: { id: string | string[] } }
+) {
     try {
-        const { id } = params;
-
+        const id = Array.isArray(params.id) ? params.id[0] : params.id;
         await prisma.project.delete({ where: { id } });
-
         return NextResponse.json({ message: "Projet supprimé" }, { status: 200 });
     } catch (error) {
         console.error(error);
