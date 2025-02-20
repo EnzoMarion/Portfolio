@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Définition d'un type spécifique pour les paramètres
+interface Params {
+    params: { id: string };
+}
+
 // Récupérer un projet par ID (GET)
 export async function GET(
     request: NextRequest,
-    context: any // ❌ Pas de typage explicite
+    { params }: Params // ✅ Typage correct
 ) {
     try {
-        const { id } = context.params; // ✅ On récupère params correctement
-
         const project = await prisma.project.findUnique({
-            where: { id },
+            where: { id: params.id },
         });
 
         if (!project) {
@@ -25,12 +28,13 @@ export async function GET(
 }
 
 // Supprimer un projet (DELETE)
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+    request: NextRequest,
+    { params }: Params // ✅ Typage correct
+) {
     try {
-        const { id } = context.params;
-
         const deletedProject = await prisma.project.delete({
-            where: { id },
+            where: { id: params.id },
         });
 
         return NextResponse.json(deletedProject, { status: 200 });
