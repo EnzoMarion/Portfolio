@@ -2,12 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // ✅ Récupérer un projet par ID
-export async function GET(
-    request: NextRequest,
-    context: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const { id } = context.params; // ✅ Prend l’ID correctement
+        const { id } = params; // ✅ Récupère l'ID directement depuis params
         const project = await prisma.project.findUnique({ where: { id } });
 
         if (!project) {
@@ -22,12 +19,9 @@ export async function GET(
 }
 
 // ✅ Mettre à jour un projet par ID
-export async function PUT(
-    request: NextRequest,
-    context: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const { id } = context.params;
+        const { id } = params;
         const body = await request.json();
 
         const updatedProject = await prisma.project.update({
@@ -43,12 +37,9 @@ export async function PUT(
 }
 
 // ✅ Supprimer un projet par ID
-export async function DELETE(
-    request: NextRequest,
-    context: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const { id } = context.params;
+        const { id } = params;
 
         await prisma.project.delete({ where: { id } });
 
