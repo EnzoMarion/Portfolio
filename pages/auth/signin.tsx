@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Link from "next/link"; // Importation de Link
 
 export default function SignIn() {
     const [identifier, setIdentifier] = useState(""); // Email ou pseudo
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    const [error, setError] = useState(""); // Toujours utilisé pour afficher les erreurs
     const router = useRouter();
     const supabase = createClientComponentClient();
 
@@ -86,7 +87,10 @@ export default function SignIn() {
                 </button>
             </form>
             <p className="mt-4">
-                Pas encore de compte ? <a href="/auth/signup" className="text-blue-400">S'inscrire</a>
+                Pas encore de compte ?{" "}
+                <Link href="/auth/signup">
+                    <a className="text-blue-400">S&apos;inscrire</a> {/* Remplacement du guillemet par &apos; */}
+                </Link>
             </p>
         </div>
     );

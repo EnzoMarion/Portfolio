@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Link from "next/link"; // Importation de Link
 
 const supabase = createClientComponentClient();
 
@@ -55,9 +56,15 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center">
                     <div className="text-xl">Mon Portfolio</div>
                     <div className="flex space-x-4">
-                        <a href="/projects" className="hover:text-green-500">Projets</a>
-                        <a href="/news" className="hover:text-green-500">Actualités</a>
-                        <a href="/profile" className="hover:text-green-500">Profil</a>
+                        <Link href="/projects">
+                            <a className="hover:text-green-500">Projets</a>
+                        </Link>
+                        <Link href="/news">
+                            <a className="hover:text-green-500">Actualités</a>
+                        </Link>
+                        <Link href="/profile">
+                            <a className="hover:text-green-500">Profil</a>
+                        </Link>
                     </div>
                     <div className="flex items-center space-x-4">
                         <p className="text-sm">{user.pseudo}</p>

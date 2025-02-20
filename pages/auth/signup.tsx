@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react"; // Utiliser signIn de NextAuth
+import Link from "next/link"; // Importation de Link
 
 export default function SignUp() {
     const [pseudo, setPseudo] = useState("");
@@ -56,11 +57,14 @@ export default function SignUp() {
                     required
                 />
                 <button type="submit" className="w-full bg-green-500 hover:bg-green-600 p-2 rounded">
-                    S'inscrire
+                    S&apos;inscrire {/* Remplacer le guillemet par &apos; */}
                 </button>
             </form>
             <p className="mt-4">
-                Déjà un compte ? <a href="/auth/signin" className="text-blue-400">Se connecter</a>
+                Déjà un compte ?{" "}
+                <Link href="/auth/signin">
+                    <a className="text-blue-400">Se connecter</a> {/* Utiliser Link ici */}
+                </Link>
             </p>
         </div>
     );

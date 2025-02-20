@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Image from "next/image"; // Importation du composant Image
 
 const supabase = createClientComponentClient();
 
@@ -66,7 +67,13 @@ export default function Projects() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                 {projects.map((project) => (
                     <div key={project.id} className="p-4 bg-gray-800 rounded-lg shadow-md">
-                        <img src={project.imageUrl} alt={project.title} className="w-full h-40 object-cover rounded" />
+                        <Image
+                            src={project.imageUrl}
+                            alt={project.title}
+                            className="w-full h-40 object-cover rounded"
+                            width={500}
+                            height={200}
+                        />
                         <h2 className="text-xl font-bold mt-2">{project.title}</h2>
                         <p className="text-gray-300">{project.description}</p>
                         {user?.role === "admin" && (
