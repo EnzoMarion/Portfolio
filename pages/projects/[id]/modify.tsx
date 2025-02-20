@@ -42,6 +42,11 @@ export default function ModifyProject() {
 
                 const userData = await response.json();
                 setUser(userData);
+
+                // Vérification du rôle utilisateur
+                if (userData.role !== "admin") {
+                    router.push("/"); // Rediriger si l'utilisateur n'est pas un admin
+                }
             } catch (error: unknown) {
                 if (error instanceof Error) {
                     console.error("Erreur lors de la récupération de l'utilisateur:", error.message);
@@ -75,8 +80,6 @@ export default function ModifyProject() {
             }
         };
 
-
-
         fetchUser();
         fetchProject();
         setLoading(false);
@@ -87,12 +90,11 @@ export default function ModifyProject() {
 
         if (!project) return;  // Vérifiez que les données du projet existent
 
-// Vérifiez que les champs requis sont remplis avant d'envoyer la requête PUT
+        // Vérifiez que les champs requis sont remplis avant d'envoyer la requête PUT
         if (!project.title || !project.description || !project.imageUrl || !project.moreUrl) {
             alert("Tous les champs doivent être remplis");
             return;
         }
-
 
         try {
             const response = await fetch(`/api/projects/${projectId}`, {

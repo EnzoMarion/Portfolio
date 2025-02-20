@@ -1,12 +1,51 @@
-import { useState } from "react";
-import { useRouter } from "next/router";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
+const supabase = createClientComponentClient();
 
 export default function AddProject() {
+    const [user, setUser] = useState<{ email: string; pseudo: string; role: string } | null>(null);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [imageUrl, setImageUrl] = useState("");
     const [moreUrl, setMoreUrl] = useState(""); // Nouveau champ
     const router = useRouter();
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data: authData, error: authError } = await supabase.auth.getUser();
+
+            if (authError || !authData.user) {
+                router.push("/auth/signin");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/user?email=${authData.user.email}`);
+                if (!response.ok) throw new Error("Utilisateur non trouvé");
+
+                const userData = await response.json();
+                setUser(userData);
+
+                if (userData.role !== "admin") {
+                    // Redirige si l'utilisateur n'est pas un admin
+                    router.push("/");
+                }
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error("Erreur lors de la récupération de l'utilisateur:", error.message);
+                } else {
+                    console.error("Erreur inconnue lors de la récupération de l'utilisateur.");
+                }
+                router.push("/");
+            }
+        };
+
+        fetchUser();
+    }, [router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,6 +72,10 @@ export default function AddProject() {
             console.error("Erreur lors de l'ajout du projet");
         }
     };
+
+    if (!user || user.role !== "admin") {
+        return <p>Chargement...</p>; // Ou un message personnalisé
+    }
 
     return (
         <div className="min-h-screen bg-gray-900 text-white">
@@ -79,6 +122,13 @@ export default function AddProject() {
                 </div>
                 <button type="submit" className="bg-green-500 p-2 rounded">
                     Ajouter
+                </button>
+                <button
+                    type="button"
+                    onClick={() => router.push("/projects")}
+                    className="bg-gray-500 p-2 rounded"
+                >
+                    Annuler
                 </button>
             </form>
         </div>
