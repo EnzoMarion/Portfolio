@@ -56,14 +56,14 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center">
                     <div className="text-xl">Mon Portfolio</div>
                     <div className="flex space-x-4">
-                        <Link href="/projects">
-                            <a className="hover:text-green-500">Projets</a>
+                        <Link href="/projects" className="hover:text-green-500">
+                            Projets
                         </Link>
-                        <Link href="/news">
-                            <a className="hover:text-green-500">Actualités</a>
+                        <Link href="/news" className="hover:text-green-500">
+                            Actualités
                         </Link>
-                        <Link href="/profile">
-                            <a className="hover:text-green-500">Profil</a>
+                        <Link href="/profile" className="hover:text-green-500">
+                            Profil
                         </Link>
                     </div>
                     <div className="flex items-center space-x-4">

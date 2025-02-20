@@ -62,8 +62,8 @@ export default function SignUp() {
             </form>
             <p className="mt-4">
                 Déjà un compte ?{" "}
-                <Link href="/auth/signin">
-                    <a className="text-blue-400">Se connecter</a> {/* Utiliser Link ici */}
+                <Link href="/auth/signin" className="text-blue-400">
+                    Se connecter
                 </Link>
             </p>
         </div>

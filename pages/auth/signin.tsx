@@ -88,8 +88,8 @@ export default function SignIn() {
             </form>
             <p className="mt-4">
                 Pas encore de compte ?{" "}
-                <Link href="/auth/signup">
-                    <a className="text-blue-400">S&apos;inscrire</a> {/* Remplacement du guillemet par &apos; */}
+                <Link href="/auth/signup" className="text-blue-400">
+                    S&apos;inscrire
                 </Link>
             </p>
         </div>

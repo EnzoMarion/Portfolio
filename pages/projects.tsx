@@ -76,7 +76,7 @@ export default function Projects() {
                 {projects.map((project) => (
                     <div key={project.id} className="p-4 bg-gray-800 rounded-lg shadow-md">
                         <Image
-                            src={project.imageUrl}
+                            src={project.imageUrl.startsWith("/") ? project.imageUrl : `/${project.imageUrl}`}
                             alt={project.title}
                             className="w-full h-40 object-cover rounded"
                             width={500}
