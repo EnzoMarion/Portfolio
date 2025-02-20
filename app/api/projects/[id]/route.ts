@@ -33,21 +33,3 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         return NextResponse.json({ error: "Erreur lors de la mise à jour du projet" }, { status: 500 });
     }
 }
-
-// Récupérer un projet (GET)
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params;
-
-    try {
-        const project = await prisma.project.findUnique({
-            where: { id },
-        });
-        if (!project) {
-            return NextResponse.json({ error: "Projet non trouvé" }, { status: 404 });
-        }
-        return NextResponse.json(project, { status: 200 });
-    } catch (error) {
-        console.error(error);
-        return NextResponse.json({ error: "Erreur lors de la récupération du projet" }, { status: 500 });
-    }
-}
