@@ -14,10 +14,29 @@ interface Project {
     imageUrl: string;
 }
 
+interface Message {
+    id: string;
+    content: string;
+    userId: string;
+    createdAt: string;
+    user: {
+        pseudo: string;
+    };
+}
+
+interface Reaction {
+    id: string;
+    userId: string;
+    projectId: string;
+}
+
 export default function Projects() {
-    const [user, setUser] = useState<{ email: string; pseudo: string; role: string } | null>(null);
+    const [user, setUser] = useState<{ id: string; email: string; pseudo: string; role: string } | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
+    const [comments, setComments] = useState<{ [key: string]: Message[] }>({});
+    const [reactions, setReactions] = useState<{ [key: string]: number }>({});
+    const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
     const router = useRouter();
 
     useEffect(() => {
@@ -35,12 +54,8 @@ export default function Projects() {
 
                 const userData = await response.json();
                 setUser(userData);
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    console.error("Erreur lors de la récupération de l'utilisateur:", error.message);
-                } else {
-                    console.error("Erreur inconnue lors de la récupération de l'utilisateur.");
-                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération de l'utilisateur:", error);
                 router.push("/");
             }
         };
@@ -48,17 +63,18 @@ export default function Projects() {
         const fetchProjects = async () => {
             try {
                 const response = await fetch("/api/projects");
-                if (!response.ok) {
-                    throw new Error("Erreur lors de la récupération des projets");
-                }
+                if (!response.ok) throw new Error("Erreur lors de la récupération des projets");
+
                 const data = await response.json();
                 setProjects(data);
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    console.error("Erreur lors de la récupération des projets:", error.message);
-                } else {
-                    console.error("Erreur inconnue lors de la récupération des projets.");
-                }
+
+                // Charger les commentaires et réactions
+                data.forEach((project: Project) => {
+                    fetchComments(project.id);
+                    fetchReactions(project.id);
+                });
+            } catch (error) {
+                console.error("Erreur lors de la récupération des projets:", error);
             }
         };
 
@@ -67,39 +83,98 @@ export default function Projects() {
         setLoading(false);
     }, [router]);
 
-    if (loading) return <p className="text-white">Chargement...</p>;
+    // Charger les commentaires d'un projet
+    const fetchComments = async (projectId: string) => {
+        try {
+            const response = await fetch(`/api/projects/${projectId}/comments`);
+            if (!response.ok) return;
 
-    // Fonction pour supprimer un projet
-    const handleDelete = async (id: string) => {
-        if (window.confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
-            try {
-                const response = await fetch(`/api/projects/${id}`, {
-                    method: "DELETE",
-                });
-
-                if (response.ok) {
-                    setProjects((prevProjects) => prevProjects.filter((project) => project.id !== id));
-                    alert("Le projet a été supprimé avec succès");
-                } else {
-                    throw new Error("Erreur lors de la suppression du projet");
-                }
-            } catch (error) {
-                alert("Erreur lors de la suppression du projet");
-                console.error(error);
-            }
+            const data = await response.json();
+            setComments((prev) => ({ ...prev, [projectId]: data }));
+        } catch (error) {
+            console.error("Erreur lors de la récupération des commentaires:", error);
         }
     };
+
+    // Charger les réactions d'un projet
+    const fetchReactions = async (projectId: string) => {
+        try {
+            const response = await fetch(`/api/projects/${projectId}/reactions`);
+            if (!response.ok) return;
+
+            const data = await response.json();
+            setReactions((prev) => ({ ...prev, [projectId]: data.length }));
+        } catch (error) {
+            console.error("Erreur lors de la récupération des réactions:", error);
+        }
+    };
+
+    // Ajouter un commentaire
+    const handleAddComment = async (projectId: string) => {
+        if (!newComment[projectId]) return;
+
+        try {
+            const response = await fetch(`/api/projects/${projectId}/comments`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: newComment[projectId], userId: user?.id }),
+            });
+
+            if (!response.ok) throw new Error("Erreur lors de l'ajout du commentaire");
+
+            fetchComments(projectId);
+            setNewComment((prev) => ({ ...prev, [projectId]: "" }));
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    // Ajouter une réaction
+    // Ajouter ou supprimer une réaction
+    const handleAddReaction = async (projectId: string) => {
+        if (!user?.id) return;
+
+        try {
+            // Vérifier si l'utilisateur a déjà réagi
+            const reactionResponse = await fetch(`/api/projects/${projectId}/reactions?userId=${user.id}`);
+            const existingReaction = await reactionResponse.json();
+
+            if (existingReaction.length > 0) {
+                // Si la réaction existe déjà, la supprimer
+                const deleteResponse = await fetch(`/api/projects/${projectId}/reactions`, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: user.id }),
+                });
+
+                if (!deleteResponse.ok) throw new Error("Erreur lors de la suppression de la réaction");
+            } else {
+                // Sinon, ajouter la réaction
+                const addResponse = await fetch(`/api/projects/${projectId}/reactions`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: user.id }),
+                });
+
+                if (!addResponse.ok) throw new Error("Erreur lors de l'ajout de la réaction");
+            }
+
+            // Mettre à jour les réactions après l'ajout/suppression
+            fetchReactions(projectId);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
+    if (loading) return <p className="text-white">Chargement...</p>;
 
     return (
         <div className="min-h-screen bg-gray-900 text-white">
             <h1 className="text-3xl p-4">Projets</h1>
 
-            {/* Button to add a new project, only for admins */}
             {user?.role === "admin" && (
-                <button
-                    onClick={() => router.push("/projects/add")}
-                    className="bg-green-500 p-2 rounded mb-4"
-                >
+                <button onClick={() => router.push("/projects/add")} className="bg-green-500 p-2 rounded mb-4">
                     Ajouter un projet
                 </button>
             )}
@@ -116,26 +191,54 @@ export default function Projects() {
                         />
                         <h2 className="text-xl font-bold mt-2">{project.title}</h2>
                         <p className="text-gray-300">{project.description}</p>
-                        {user?.role === "admin" && (
-                            <div className="mt-2 flex space-x-2">
-                                <button
-                                    onClick={() => router.push(`/projects/${project.id}/modify`)} // Redirection vers la page de modification
-                                    className="bg-yellow-500 p-2 rounded"
-                                >
-                                    Modifier
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(project.id)} // Supprimer le projet
-                                    className="bg-red-500 p-2 rounded"
-                                >
-                                    Supprimer
-                                </button>
+
+                        {/* Commentaires */}
+                        <div className="mt-4">
+                            <h3 className="text-lg font-semibold">Commentaires :</h3>
+                            <div className="space-y-2">
+                                {comments[project.id]?.map((comment) => (
+                                    <p key={comment.id} className="bg-gray-700 p-2 rounded">
+                                        <span className="font-bold">{comment.user.pseudo} :</span> {comment.content}
+                                    </p>
+                                ))}
                             </div>
-                        )}
+                            {user && (
+                                <div className="mt-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Ajouter un commentaire..."
+                                        value={newComment[project.id] || ""}
+                                        onChange={(e) =>
+                                            setNewComment((prev) => ({ ...prev, [project.id]: e.target.value }))
+                                        }
+                                        className="bg-gray-600 p-2 rounded w-full"
+                                    />
+                                    <button
+                                        onClick={() => handleAddComment(project.id)}
+                                        className="bg-blue-500 p-2 rounded mt-2"
+                                    >
+                                        Envoyer
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Réactions */}
+                        <div className="mt-4">
+                            <h3 className="text-lg font-semibold">Réactions :</h3>
+                            <p>{reactions[project.id] || 0} réactions</p>
+                            {user && (
+                                <button
+                                    onClick={() => handleAddReaction(project.id)}
+                                    className="bg-red-500 p-2 rounded mt-2"
+                                >
+                                    ❤️ Réagir
+                                </button>
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>
         </div>
     );
-
 }
