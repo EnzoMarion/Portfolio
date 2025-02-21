@@ -68,7 +68,7 @@ export default function Projects() {
                 const data = await response.json();
                 setProjects(data);
 
-                // Charger les commentaires et réactions
+                // Charger les commentaires et réactions pour chaque projet
                 data.forEach((project: Project) => {
                     fetchComments(project.id);
                     fetchReactions(project.id);
@@ -102,7 +102,7 @@ export default function Projects() {
             const response = await fetch(`/api/projects/${projectId}/reactions`);
             if (!response.ok) return;
 
-            const data = await response.json();
+            const data: Reaction[] = await response.json();
             setReactions((prev) => ({ ...prev, [projectId]: data.length }));
         } catch (error) {
             console.error("Erreur lors de la récupération des réactions:", error);
@@ -122,14 +122,13 @@ export default function Projects() {
 
             if (!response.ok) throw new Error("Erreur lors de l'ajout du commentaire");
 
-            fetchComments(projectId);
-            setNewComment((prev) => ({ ...prev, [projectId]: "" }));
+            fetchComments(projectId); // Recharger les commentaires
+            setNewComment((prev) => ({ ...prev, [projectId]: "" })); // Réinitialiser le commentaire
         } catch (error) {
             console.error(error);
         }
     };
 
-    // Ajouter une réaction
     // Ajouter ou supprimer une réaction
     const handleAddReaction = async (projectId: string) => {
         if (!user?.id) return;
@@ -165,7 +164,6 @@ export default function Projects() {
             console.error(error);
         }
     };
-
 
     if (loading) return <p className="text-white">Chargement...</p>;
 

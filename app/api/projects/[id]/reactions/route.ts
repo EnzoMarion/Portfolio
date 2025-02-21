@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Typage pour context (avec les paramètres dynamiques)
+interface Context {
+    params: { id: string };
+}
+
 // Récupérer les réactions d'un projet
-export async function GET(request: NextRequest, context: any) {
-    const { id: projectId } = context.params as { id: string };
+export async function GET(request: NextRequest, context: Context) {
+    const { id: projectId } = context.params;
     try {
         const reactions = await prisma.reaction.findMany({
             where: { projectId },
@@ -18,8 +23,8 @@ export async function GET(request: NextRequest, context: any) {
 }
 
 // Ajouter une réaction à un projet
-export async function POST(request: NextRequest, context: any) {
-    const { id: projectId } = context.params as { id: string };
+export async function POST(request: NextRequest, context: Context) {
+    const { id: projectId } = context.params;
 
     try {
         const { userId } = await request.json();
@@ -78,4 +83,3 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     }
 }
-
