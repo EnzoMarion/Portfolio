@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest, context: any) {
 }
 
 // Supprimer une réaction
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(request: NextRequest, _context: any) {
     const { userId, projectId } = await request.json();
     try {
         // Vérifier si la réaction existe pour ce projet
