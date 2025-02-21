@@ -43,7 +43,7 @@ export async function POST(request: NextRequest, context: any) {
 }
 
 // Supprimer une réaction
-export async function DELETE(request: NextRequest, _context: any) {
+export async function DELETE(request: NextRequest) {
     const { userId, projectId } = await request.json();
     try {
         // Vérifier si la réaction existe pour ce projet
