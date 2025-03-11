@@ -1,6 +1,5 @@
 // lib/auth.ts
-import { NextAuthOptions, User, Session } from "next-auth";
-import { JWT } from "next-auth/jwt";
+import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { createClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";
@@ -18,9 +17,8 @@ export const authOptions: NextAuthOptions = {
             credentials: {
                 email: { label: "Email", type: "text" },
                 password: { label: "Password", type: "password" },
-                pseudo: { label: "Pseudo", type: "text" },
+                pseudo: { label: "Pseudo", type: "text" }, // Optionnel pour l'inscription
             },
-// lib/auth.ts (extrait corrigé)
             async authorize(credentials) {
                 const email = credentials?.email;
                 const password = credentials?.password;
@@ -30,11 +28,13 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("Email et mot de passe sont requis.");
                 }
 
+                // Vérifie si l'utilisateur existe
                 const user = await prisma.user.findUnique({
                     where: { email },
                 });
 
                 if (user) {
+                    // Connexion
                     const isPasswordValid = await bcrypt.compare(password, user.password);
                     if (!isPasswordValid) {
                         throw new Error("Mot de passe incorrect.");
@@ -42,9 +42,10 @@ export const authOptions: NextAuthOptions = {
                     return {
                         id: user.id,
                         email: user.email,
-                        role: user.role, // Toujours inclus
+                        role: user.role ?? "user", // Valeur par défaut si role est null
                     };
                 } else if (pseudo) {
+                    // Inscription
                     const existingUser = await prisma.user.findFirst({
                         where: { OR: [{ email }, { pseudo }] },
                     });
@@ -52,6 +53,7 @@ export const authOptions: NextAuthOptions = {
                         throw new Error("Cet email ou pseudo est déjà utilisé.");
                     }
 
+                    // Inscription via Supabase
                     const { data: authData, error: authError } = await supabase.auth.signUp({
                         email,
                         password,
@@ -79,7 +81,7 @@ export const authOptions: NextAuthOptions = {
                     return {
                         id: newUser.id,
                         email: newUser.email,
-                        role: newUser.role, // Toujours inclus
+                        role: newUser.role,
                     };
                 } else {
                     throw new Error("Utilisateur non trouvé. Veuillez vous inscrire.");
@@ -88,21 +90,20 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     session: {
-        strategy: "jwt" as const,
+        strategy: "jwt",
     },
-    // lib/auth.ts (extrait)
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
-                token.role = user.role || "user"; // Remplit role dans le token
+                token.role = user.role ?? "user"; // Assure que role est toujours défini
             }
             return token;
         },
         async session({ session, token }) {
             if (token) {
                 session.user.id = token.id as string;
-                session.user.role = token.role as string || "user"; // Remplit role dans la session
+                session.user.role = token.role as string; // Role est déjà garanti par le callback jwt
             }
             return session;
         },

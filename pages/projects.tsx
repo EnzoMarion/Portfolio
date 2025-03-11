@@ -257,10 +257,7 @@ export default function Projects() {
                         />
                         <div className="flex gap-2">
                             <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    handleAddComment(projectId, comment.id);
-                                }}
+                                onClick={() => handleAddComment(projectId, comment.id)}
                                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg"
                             >
                                 Envoyer
@@ -299,8 +296,8 @@ export default function Projects() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {projects.map((project) => (
-                        <Link href={`/projects/${project.id}`} key={project.id}>
-                            <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden cursor-pointer">
+                        <div key={project.id} className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                            <div className="relative">
                                 <Image
                                     src={project.imageUrl.startsWith("/") ? project.imageUrl : `/${project.imageUrl}`}
                                     alt={project.title}
@@ -308,68 +305,67 @@ export default function Projects() {
                                     width={500}
                                     height={200}
                                 />
-                                <div className="p-4">
-                                    <h2 className="text-2xl font-bold text-white mb-2">{project.title}</h2>
-                                    <p className="text-gray-300 mb-4">{truncateDescription(project.description)}</p>
+                                <Link href={`/projects/${project.id}`}>
+                                    <button className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white py-1 px-3 rounded-lg hover:bg-opacity-75 transition-opacity">
+                                        En savoir plus
+                                    </button>
+                                </Link>
+                            </div>
+                            <div className="p-4">
+                                <h2 className="text-2xl font-bold text-white mb-2">{project.title}</h2>
+                                <p className="text-gray-300 mb-4">{truncateDescription(project.description)}</p>
 
-                                    {user?.role === "admin" && (
-                                        <div className="flex gap-2 mb-4">
-                                            <Link href={`/projects/${project.id}/modify`}>
-                                                <button className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-lg">
-                                                    Modifier
-                                                </button>
-                                            </Link>
+                                {user?.role === "admin" && (
+                                    <div className="flex gap-2 mb-4">
+                                        <Link href={`/projects/${project.id}/modify`}>
+                                            <button className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-lg">
+                                                Modifier
+                                            </button>
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDeleteProject(project.id)}
+                                            className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg"
+                                        >
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                )}
+
+                                <div className="mt-4">
+                                    <h3 className="text-lg font-semibold text-gray-200 mb-2">Commentaires :</h3>
+                                    <div className="space-y-2">
+                                        {comments[project.id] &&
+                                            renderComments(project.id, comments[project.id].filter((c) => !c.parentId))}
+                                    </div>
+                                    {user ? (
+                                        <div className="mt-4 flex flex-col gap-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Ajouter un commentaire..."
+                                                value={newComment[project.id] || ""}
+                                                onChange={(e) =>
+                                                    setNewComment((prev) => ({ ...prev, [project.id]: e.target.value }))
+                                                }
+                                                className="bg-gray-800 text-white p-2 rounded-lg w-full border border-gray-600 focus:outline-none focus:border-blue-500"
+                                            />
                                             <button
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    handleDeleteProject(project.id);
-                                                }}
-                                                className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg"
+                                                onClick={() => handleAddComment(project.id)}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg"
                                             >
-                                                Supprimer
+                                                Envoyer
                                             </button>
                                         </div>
+                                    ) : (
+                                        <p className="text-gray-400 mt-2">
+                                            <Link href="/auth/signin" className="text-blue-400 hover:underline">
+                                                Connectez-vous
+                                            </Link>{" "}
+                                            pour commenter.
+                                        </p>
                                     )}
-
-                                    <div className="mt-4">
-                                        <h3 className="text-lg font-semibold text-gray-200 mb-2">Commentaires :</h3>
-                                        <div className="space-y-2">
-                                            {comments[project.id] &&
-                                                renderComments(project.id, comments[project.id].filter((c) => !c.parentId))}
-                                        </div>
-                                        {user ? (
-                                            <div className="mt-4 flex flex-col gap-2">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Ajouter un commentaire..."
-                                                    value={newComment[project.id] || ""}
-                                                    onChange={(e) =>
-                                                        setNewComment((prev) => ({ ...prev, [project.id]: e.target.value }))
-                                                    }
-                                                    className="bg-gray-800 text-white p-2 rounded-lg w-full border border-gray-600 focus:outline-none focus:border-blue-500"
-                                                />
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        handleAddComment(project.id);
-                                                    }}
-                                                    className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg"
-                                                >
-                                                    Envoyer
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <p className="text-gray-400 mt-2">
-                                                <Link href="/auth/signin" className="text-blue-400 hover:underline">
-                                                    Connectez-vous
-                                                </Link>{" "}
-                                                pour commenter.
-                                            </p>
-                                        )}
-                                    </div>
                                 </div>
                             </div>
-                        </Link>
+                        </div>
                     ))}
                 </div>
             </div>
