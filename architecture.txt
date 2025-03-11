@@ -1,0 +1,124 @@
+Structure du dossier pour le volume OS
+Le num�ro de s�rie du volume est 9051-5940
+C:.
+|   .env
+|   .env.local
+|   .gitignore
+|   architecture.txt
+|   eslint.config.mjs
+|   next-env.d.ts
+|   next.config.ts
+|   package-lock.json
+|   package.json
+|   postcss.config.js
+|   postcss.config.mjs
+|   README.md
+|   tailwind.config.js
+|   tailwind.config.ts
+|   tsconfig.json
+|   
++---.idea
+|   |   .gitignore
+|   |   modules.xml
+|   |   php.xml
+|   |   portfolio.iml
+|   |   vcs.xml
+|   |   workspace.xml
+|   |   
+|   \---inspectionProfiles
+|           Project_Default.xml
+|           
++---.next
++---app
+|   |   favicon.ico
+|   |   globals.css
+|   |   layout.tsx
+|   |   page.tsx
+|   |   
+|   +---api
+|   |   +---auth
+|   |   |       +---auth
+|   |   |   |   |   +---[...nextauth]
+|   |   |   |   |   |   | route.ts
+|   |   |       
+|   |   +---projects
+|   |   |   |   route.ts
+|   |   |   |   
+|   |   |   \---[id]
+|   |   |       |   route.ts
+|   |   |       |   
+|   |   |       +---comments
+|   |   |       |       route.ts
+|   |   |       |       
+|   |   |       \---reactions
+|   |   |               route.ts
+|   |   |               
+|   |   \---user
+|   |           route.ts
+|   |           
+|   \---components
+|           Navbar.tsx
+|           
++---lib
+|       prisma.ts
+|       supabase.ts
+|       
++---node_modules               
++---pages
+|   |   dashboard.tsx
+|   |   news.tsx
+|   |   profile.tsx
+|   |   projects.tsx
+|   |   _app.tsx
+|   |   
+|   +---admin
+|   |       projects.tsx
+|   |       
+|   +---auth
+|   |       signin.tsx
+|   |       signup.tsx
+|   |       verify-email.tsx
+|   |       
+|   \---projects
+|       |   add.tsx
+|       |   
+|       \---[id]
+|               modify.tsx
+|               
++---prisma
+|   |   schema.prisma
+|   |   
+|   \---migrations
+|       |   migration_lock.toml
+|       |   
+|       +---20250212222111_init
+|       |       migration.sql
+|       |       
+|       +---20250212222247_init
+|       |       migration.sql
+|       |       
+|       +---20250213150207_add_pseudo_to_user
+|       |       migration.sql
+|       |       
+|       +---20250220132357_add_more_url_to_project
+|       |       migration.sql
+|       |       
+|       +---20250220134140_oui
+|       |       migration.sql
+|       |       
+|       +---20250221084056_add_messages_to_project
+|       |       migration.sql
+|       |       
+|       \---20250221084543_update_message_project_id
+|               migration.sql
+|               
++---public
+|       file.svg
+|       globe.svg
+|       next.svg
+|       vercel.svg
+|       window.svg
+|       
+\---types
+        next-auth.d.ts
+        

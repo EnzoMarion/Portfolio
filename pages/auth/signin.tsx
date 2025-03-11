@@ -77,11 +77,17 @@ export default function SignIn() {
                 <button type="submit" className="w-full bg-green-500 hover:bg-green-600 p-2 rounded">
                     Se connecter
                 </button>
+                <button
+                    onClick={() => router.push("/dashboard")}
+                    className="mt-4 bg-gray-500 hover:bg-gray-600 p-2 rounded w-80"
+                >
+                    Retour
+                </button>
             </form>
             <p className="mt-4">
                 Pas encore de compte ?{" "}
                 <Link href="/auth/signup" className="text-blue-400">
-                    S&apos;inscrire
+                    S'inscrire
                 </Link>
             </p>
         </div>

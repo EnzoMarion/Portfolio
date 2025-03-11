@@ -63,7 +63,13 @@ export default function SignUp() {
                     required
                 />
                 <button type="submit" className="w-full bg-green-500 hover:bg-green-600 p-2 rounded">
-                    S&apos;inscrire
+                    S'inscrire
+                </button>
+                <button
+                    onClick={() => router.push("/dashboard")}
+                    className="mt-4 bg-gray-500 hover:bg-gray-600 p-2 rounded w-80"
+                >
+                    Retour
                 </button>
             </form>
             <p className="mt-4">

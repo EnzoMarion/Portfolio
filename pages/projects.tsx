@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Image from "next/image";
+import Link from "next/link";
+import Navbar from "../app/components/Navbar";
 
 const supabase = createClientComponentClient();
 
@@ -24,18 +26,11 @@ interface Message {
     };
 }
 
-interface Reaction {
-    id: string;
-    userId: string;
-    projectId: string;
-}
-
 export default function Projects() {
     const [user, setUser] = useState<{ id: string; email: string; pseudo: string; role: string } | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [comments, setComments] = useState<{ [key: string]: Message[] }>({});
-    const [reactions, setReactions] = useState<{ [key: string]: number }>({});
     const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
     const router = useRouter();
 
@@ -44,19 +39,19 @@ export default function Projects() {
             const { data: authData, error: authError } = await supabase.auth.getUser();
 
             if (authError || !authData.user) {
-                router.push("/auth/signin");
-                return;
-            }
+                // Pas de redirection, on laisse l'utilisateur à null pour les visiteurs
+                setUser(null);
+            } else {
+                try {
+                    const response = await fetch(`/api/user?email=${authData.user.email}`);
+                    if (!response.ok) throw new Error("Utilisateur non trouvé");
 
-            try {
-                const response = await fetch(`/api/user?email=${authData.user.email}`);
-                if (!response.ok) throw new Error("Utilisateur non trouvé");
-
-                const userData = await response.json();
-                setUser(userData);
-            } catch (error) {
-                console.error("Erreur lors de la récupération de l'utilisateur:", error);
-                router.push("/");
+                    const userData = await response.json();
+                    setUser(userData);
+                } catch (error) {
+                    console.error("Erreur lors de la récupération de l'utilisateur:", error);
+                    setUser(null); // On continue sans utilisateur
+                }
             }
         };
 
@@ -68,10 +63,9 @@ export default function Projects() {
                 const data = await response.json();
                 setProjects(data);
 
-                // Charger les commentaires et réactions pour chaque projet
+                // Charger les commentaires pour chaque projet
                 data.forEach((project: Project) => {
                     fetchComments(project.id);
-                    fetchReactions(project.id);
                 });
             } catch (error) {
                 console.error("Erreur lors de la récupération des projets:", error);
@@ -96,28 +90,15 @@ export default function Projects() {
         }
     };
 
-    // Charger les réactions d'un projet
-    const fetchReactions = async (projectId: string) => {
-        try {
-            const response = await fetch(`/api/projects/${projectId}/reactions`);
-            if (!response.ok) return;
-
-            const data: Reaction[] = await response.json();
-            setReactions((prev) => ({ ...prev, [projectId]: data.length }));
-        } catch (error) {
-            console.error("Erreur lors de la récupération des réactions:", error);
-        }
-    };
-
     // Ajouter un commentaire
     const handleAddComment = async (projectId: string) => {
-        if (!newComment[projectId]) return;
+        if (!newComment[projectId] || !user) return;
 
         try {
             const response = await fetch(`/api/projects/${projectId}/comments`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: newComment[projectId], userId: user?.id }),
+                body: JSON.stringify({ content: newComment[projectId], userId: user.id }),
             });
 
             if (!response.ok) throw new Error("Erreur lors de l'ajout du commentaire");
@@ -129,39 +110,20 @@ export default function Projects() {
         }
     };
 
-    // Ajouter ou supprimer une réaction
-    const handleAddReaction = async (projectId: string) => {
-        if (!user?.id) return;
+    // Supprimer un projet (admin seulement)
+    const handleDeleteProject = async (projectId: string) => {
+        if (!user || user.role !== "admin") return;
 
         try {
-            // Vérifier si l'utilisateur a déjà réagi
-            const reactionResponse = await fetch(`/api/projects/${projectId}/reactions?userId=${user.id}`);
-            const existingReaction = await reactionResponse.json();
+            const response = await fetch(`/api/projects/${projectId}`, {
+                method: "DELETE",
+            });
 
-            if (existingReaction.length > 0) {
-                // Si la réaction existe déjà, la supprimer
-                const deleteResponse = await fetch(`/api/projects/${projectId}/reactions`, {
-                    method: "DELETE",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId: user.id }),
-                });
+            if (!response.ok) throw new Error("Erreur lors de la suppression du projet");
 
-                if (!deleteResponse.ok) throw new Error("Erreur lors de la suppression de la réaction");
-            } else {
-                // Sinon, ajouter la réaction
-                const addResponse = await fetch(`/api/projects/${projectId}/reactions`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId: user.id }),
-                });
-
-                if (!addResponse.ok) throw new Error("Erreur lors de l'ajout de la réaction");
-            }
-
-            // Mettre à jour les réactions après l'ajout/suppression
-            fetchReactions(projectId);
+            setProjects((prev) => prev.filter((p) => p.id !== projectId));
         } catch (error) {
-            console.error(error);
+            console.error("Erreur lors de la suppression du projet:", error);
         }
     };
 
@@ -169,12 +131,18 @@ export default function Projects() {
 
     return (
         <div className="min-h-screen bg-gray-900 text-white">
+            <Navbar />
             <h1 className="text-3xl p-4">Projets</h1>
 
             {user?.role === "admin" && (
-                <button onClick={() => router.push("/projects/add")} className="bg-green-500 p-2 rounded mb-4">
-                    Ajouter un projet
-                </button>
+                <div className="p-4">
+                    <button
+                        onClick={() => router.push("/projects/add")}
+                        className="bg-green-500 p-2 rounded mb-4"
+                    >
+                        Ajouter un projet
+                    </button>
+                </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
@@ -190,6 +158,21 @@ export default function Projects() {
                         <h2 className="text-xl font-bold mt-2">{project.title}</h2>
                         <p className="text-gray-300">{project.description}</p>
 
+                        {/* Options admin : Modifier et Supprimer */}
+                        {user?.role === "admin" && (
+                            <div className="mt-4 flex space-x-2">
+                                <Link href={`/projects/${project.id}/modify`}>
+                                    <button className="bg-yellow-500 p-2 rounded">Modifier</button>
+                                </Link>
+                                <button
+                                    onClick={() => handleDeleteProject(project.id)}
+                                    className="bg-red-500 p-2 rounded"
+                                >
+                                    Supprimer
+                                </button>
+                            </div>
+                        )}
+
                         {/* Commentaires */}
                         <div className="mt-4">
                             <h3 className="text-lg font-semibold">Commentaires :</h3>
@@ -200,7 +183,7 @@ export default function Projects() {
                                     </p>
                                 ))}
                             </div>
-                            {user && (
+                            {user ? (
                                 <div className="mt-2">
                                     <input
                                         type="text"
@@ -209,7 +192,7 @@ export default function Projects() {
                                         onChange={(e) =>
                                             setNewComment((prev) => ({ ...prev, [project.id]: e.target.value }))
                                         }
-                                        className="bg-gray-600 p-2 rounded w-full"
+                                        className="bg-gray-600 p-2 rounded w-full text-white"
                                     />
                                     <button
                                         onClick={() => handleAddComment(project.id)}
@@ -218,20 +201,13 @@ export default function Projects() {
                                         Envoyer
                                     </button>
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Réactions */}
-                        <div className="mt-4">
-                            <h3 className="text-lg font-semibold">Réactions :</h3>
-                            <p>{reactions[project.id] || 0} réactions</p>
-                            {user && (
-                                <button
-                                    onClick={() => handleAddReaction(project.id)}
-                                    className="bg-red-500 p-2 rounded mt-2"
-                                >
-                                    ❤️ Réagir
-                                </button>
+                            ) : (
+                                <p className="text-gray-400 mt-2">
+                                    <Link href="/auth/signin" className="text-blue-400 hover:underline">
+                                        Connectez-vous
+                                    </Link>{" "}
+                                    pour commenter.
+                                </p>
                             )}
                         </div>
                     </div>

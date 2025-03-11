@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Link from "next/link";
 
-// Définir un type pour l'utilisateur
 interface User {
     email: string;
     pseudo: string;
@@ -14,38 +13,57 @@ interface User {
 const supabase = createClientComponentClient();
 
 export default function Navbar() {
-    const [user, setUser] = useState<User | null>(null); // Utilisation du type défini
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-    // Fonction de déconnexion
-    const handleSignOut = async () => {
-        await supabase.auth.signOut();
-        router.push("/auth/signin"); // Rediriger vers la page de connexion après la déconnexion
-    };
-
-    // Utiliser useEffect pour récupérer l'utilisateur
     useEffect(() => {
         const fetchUser = async () => {
-            const { data: authData, error: authError } = await supabase.auth.getUser();
-            if (authError) {
-                console.error("Erreur lors de la récupération de l'utilisateur", authError);
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error || !session?.user) {
+                    setUser(null);
+                } else {
+                    setUser({
+                        email: session.user.email || "",
+                        pseudo: session.user.user_metadata?.pseudo || "Pseudo",
+                    });
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération de la session:", error);
+                setUser(null);
+            } finally {
+                setLoading(false);
             }
-            // Utilisation d'une valeur par défaut pour email
-            setUser(authData?.user ? { email: authData.user.email || "", pseudo: authData.user.user_metadata?.pseudo || 'Pseudo' } : null);
         };
 
-        fetchUser(); // Appeler la fonction au chargement du composant
+        fetchUser();
 
-        // Optionnel : écouter les changements d'authentification
-        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ? { email: session.user.email || "", pseudo: session.user.user_metadata?.pseudo || 'Pseudo' } : null);
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === "INITIAL_SESSION" || event === "SIGNED_IN") {
+                setUser(
+                    session?.user
+                        ? { email: session.user.email || "", pseudo: session.user.user_metadata?.pseudo || "Pseudo" }
+                        : null
+                );
+                setLoading(false);
+            } else if (event === "SIGNED_OUT") {
+                setUser(null);
+                setLoading(false);
+            }
         });
 
-        // Retourner la fonction de nettoyage pour désabonner l'écouteur
         return () => {
-            authListener?.subscription.unsubscribe(); // Désabonnement
+            authListener.subscription.unsubscribe();
         };
     }, []);
+
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+        router.push("/auth/signin");
+    };
+
+    if (loading) return null; // Éviter le rendu pendant le chargement
 
     return (
         <nav className="bg-gray-800 p-4">
@@ -59,9 +77,6 @@ export default function Navbar() {
                     </Link>
                     <Link href="/news" className="hover:text-green-500 text-white">
                         Actualités
-                    </Link>
-                    <Link href="/profile" className="hover:text-green-500 text-white">
-                        Profil
                     </Link>
                 </div>
                 <div className="flex items-center space-x-6">
