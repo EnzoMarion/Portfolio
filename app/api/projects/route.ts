@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 // Récupérer un projet spécifique par ID (GET)
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const { id } = params; // Récupère l'ID depuis les paramètres dynamiques
+        const id = params.id; // Récupère l'ID directement depuis params
 
         const project = await prisma.project.findUnique({
             where: { id },
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 }
 
-// Ajouter un projet (POST) - Note : Ça devrait être dans app/api/projects/route.ts
+// Ajouter un projet (POST) - Note : Devrait être dans app/api/projects/route.ts
 export async function POST(req: NextRequest) {
     try {
         const { title, description, imageUrl, moreUrl, deploymentUrl } = await req.json();
