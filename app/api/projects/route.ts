@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // Récupérer un projet spécifique par ID (GET)
-export async function GET(req: NextRequest, context: any) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const id = context.params.id; // Récupère l'ID depuis context.params
+        const { id } = params; // Récupère l'ID depuis les paramètres dynamiques
 
         const project = await prisma.project.findUnique({
             where: { id },
