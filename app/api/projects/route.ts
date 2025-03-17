@@ -2,20 +2,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Récupérer tous les projets (GET)
-export async function GET() {
+// Récupérer un projet spécifique par ID (GET)
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const projects = await prisma.project.findMany({
-            orderBy: { createdAt: "desc" },
+        const { id } = params; // Récupère l'ID depuis les paramètres dynamiques
+
+        const project = await prisma.project.findUnique({
+            where: { id },
         });
-        return NextResponse.json(projects, { status: 200 });
+
+        if (!project) {
+            return NextResponse.json({ error: "Projet non trouvé" }, { status: 404 });
+        }
+
+        return NextResponse.json(project, { status: 200 });
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: "Erreur lors de la récupération des projets" }, { status: 500 });
+        return NextResponse.json({ error: "Erreur lors de la récupération du projet" }, { status: 500 });
     }
 }
 
-// Ajouter un projet (POST)
+// Ajouter un projet (POST) - Note : Ça devrait être dans app/api/projects/route.ts
 export async function POST(req: NextRequest) {
     try {
         const { title, description, imageUrl, moreUrl, deploymentUrl } = await req.json();
