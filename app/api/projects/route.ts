@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // Récupérer tous les projets (GET)
 export async function GET() {
     try {
-        const projects = await prisma.project.findMany();
+        const projects = await prisma.project.findMany({
+            orderBy: { createdAt: "desc" },
+        });
         return NextResponse.json(projects, { status: 200 });
     } catch (error) {
         console.error(error);
@@ -15,15 +18,24 @@ export async function GET() {
 // Ajouter un projet (POST)
 export async function POST(req: NextRequest) {
     try {
-        const { title, description, imageUrl, moreUrl } = await req.json();
+        const { title, description, imageUrl, moreUrl, deploymentUrl } = await req.json();
 
-        // Rendre moreUrl optionnel
         if (!title || !description || !imageUrl) {
-            return NextResponse.json({ error: "Tous les champs sauf 'moreUrl' sont requis" }, { status: 400 });
+            return NextResponse.json(
+                { error: "Les champs titre, description et imageUrl sont requis" },
+                { status: 400 }
+            );
         }
 
         const newProject = await prisma.project.create({
-            data: { title, description, imageUrl, moreUrl: moreUrl || null }, // Si moreUrl n'est pas défini, on l'assigne à null
+            data: {
+                title,
+                description,
+                imageUrl,
+                moreUrl: moreUrl || null, // Optionnel
+                deploymentUrl: deploymentUrl || null, // Optionnel
+                createdAt: new Date(),
+            },
         });
 
         return NextResponse.json(newProject, { status: 201 });
@@ -32,4 +44,3 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Erreur lors de la création du projet" }, { status: 500 });
     }
 }
-

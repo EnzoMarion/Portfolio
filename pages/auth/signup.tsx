@@ -16,7 +16,7 @@ export default function SignUp() {
         e.preventDefault();
         setError("");
 
-        // Ne récupérer que l'erreur, car "data" n'est pas utilisée
+        // Étape 1 : Inscription dans Supabase Auth
         const { error: signUpError } = await supabase.auth.signUp({
             email,
             password,
@@ -25,11 +25,30 @@ export default function SignUp() {
 
         if (signUpError) {
             setError(signUpError.message);
-        } else {
-            // Affiche un message pour dire à l'utilisateur de vérifier sa boîte email
-            alert("Merci de vérifier votre email pour confirmer votre compte.");
-            // Redirection vers la page de vérification de l'email
+            return;
+        }
+
+        // Étape 2 : Créer l'utilisateur dans la table User via l'API
+        try {
+            const response = await fetch("/api/user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, pseudo, password }),
+            });
+
+            if (!response.ok) {
+                const { error } = await response.json();
+                setError(error || "Erreur lors de la création de l'utilisateur");
+                return;
+            }
+
+            // Redirection après succès
             router.push("/auth/verify-email");
+        } catch (error) {
+            setError("Erreur lors de la communication avec le serveur");
+            console.error(error);
         }
     };
 

@@ -18,14 +18,22 @@ export async function GET() {
 // Ajouter une actualité (POST)
 export async function POST(req: Request) {
     try {
-        const { title, content } = await req.json();
+        const { title, content, imageUrl, moreUrl } = await req.json();
 
-        if (!title || !content) {
-            return NextResponse.json({ error: "Titre et contenu sont requis" }, { status: 400 });
+        if (!title || !content || !imageUrl) {
+            return NextResponse.json(
+                { error: "Titre, contenu et URL de l'image sont requis" },
+                { status: 400 }
+            );
         }
 
         const newNews = await prisma.news.create({
-            data: { title, content },
+            data: {
+                title,
+                content,
+                imageUrl,
+                moreUrl: moreUrl || null, // Optionnel
+            },
         });
 
         return NextResponse.json(newNews, { status: 201 });
@@ -38,15 +46,23 @@ export async function POST(req: Request) {
 // Modifier une actualité (PUT)
 export async function PUT(req: Request) {
     try {
-        const { id, title, content } = await req.json();
+        const { id, title, content, imageUrl, moreUrl } = await req.json();
 
-        if (!id || !title || !content) {
-            return NextResponse.json({ error: "ID, titre et contenu sont requis" }, { status: 400 });
+        if (!id || !title || !content || !imageUrl) {
+            return NextResponse.json(
+                { error: "ID, titre, contenu et URL de l'image sont requis" },
+                { status: 400 }
+            );
         }
 
         const updatedNews = await prisma.news.update({
             where: { id },
-            data: { title, content },
+            data: {
+                title,
+                content,
+                imageUrl,
+                moreUrl: moreUrl || null, // Optionnel
+            },
         });
 
         return NextResponse.json(updatedNews, { status: 200 });

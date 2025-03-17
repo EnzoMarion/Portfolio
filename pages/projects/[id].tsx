@@ -11,7 +11,8 @@ interface Project {
     title: string;
     description: string;
     imageUrl: string;
-    links?: string[]; // Ajuste selon ton modèle Prisma
+    moreUrl?: string; // Lien GitHub, optionnel
+    deploymentUrl?: string; // Lien de déploiement, optionnel
 }
 
 export default function ProjectDetail() {
@@ -48,27 +49,47 @@ export default function ProjectDetail() {
             <div className="max-w-4xl mx-auto px-4 py-8">
                 <h1 className="text-4xl font-bold mb-6">{project.title}</h1>
                 <Image
-                    src={project.imageUrl.startsWith("/") ? project.imageUrl : `/${project.imageUrl}`}
+                    src={project.imageUrl}
                     alt={project.title}
                     className="w-full h-64 object-cover rounded-lg mb-6"
                     width={800}
                     height={400}
                 />
-                <p className="text-gray-300 mb-6">{(project.description)}</p>
-                {project.links && project.links.length > 0 && (
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-semibold text-gray-200 mb-2">Liens :</h2>
-                        <ul className="list-disc list-inside">
-                            {project.links.map((link, index) => (
-                                <li key={index}>
-                                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-                                        {link}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+                <p className="text-gray-300 mb-6">{project.description}</p>
+
+                <div className="mb-6">
+                    <h2 className="text-2xl font-semibold text-gray-200 mb-2">Liens :</h2>
+                    <ul className="space-y-2">
+                        {project.moreUrl && (
+                            <li>
+                                <a
+                                    href={project.moreUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-400 hover:underline"
+                                >
+                                    Voir sur GitHub
+                                </a>
+                            </li>
+                        )}
+                        {project.deploymentUrl && (
+                            <li>
+                                <a
+                                    href={project.deploymentUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-400 hover:underline"
+                                >
+                                    Voir le déploiement
+                                </a>
+                            </li>
+                        )}
+                        {!project.moreUrl && !project.deploymentUrl && (
+                            <li className="text-gray-400">Aucun lien disponible</li>
+                        )}
+                    </ul>
+                </div>
+
                 <Link href="/projects" className="text-blue-400 hover:underline">
                     Retour aux projets
                 </Link>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation"; // Utilisation de useParams
+import { useParams } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 const supabase = createClientComponentClient();
@@ -12,7 +12,8 @@ interface Project {
     title: string;
     description: string;
     imageUrl: string;
-    moreUrl: string;
+    moreUrl?: string; // Optionnel (GitHub)
+    deploymentUrl?: string; // Optionnel (Déploiement)
 }
 
 export default function ModifyProject() {
@@ -20,11 +21,8 @@ export default function ModifyProject() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const params = useParams(); // Utilisation de useParams
-
-    // Vérification de la présence de 'id' dans les params et de son type
+    const params = useParams();
     const projectId = typeof params?.id === "string" ? params.id : null;
-    console.log("Project ID:", projectId);  // Pour vérifier si l'ID est correct
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -40,17 +38,11 @@ export default function ModifyProject() {
                 if (!response.ok) throw new Error("Utilisateur non trouvé");
 
                 const userData = await response.json();
-
-                // Vérification du rôle utilisateur
                 if (userData.role !== "admin") {
-                    router.push("/"); // Rediriger si l'utilisateur n'est pas un admin
+                    router.push("/");
                 }
             } catch (error: unknown) {
-                if (error instanceof Error) {
-                    console.error("Erreur lors de la récupération de l'utilisateur:", error.message);
-                } else {
-                    console.error("Erreur inconnue lors de la récupération de l'utilisateur.");
-                }
+                console.error("Erreur lors de la récupération de l'utilisateur:", error);
                 router.push("/");
             }
         };
@@ -61,36 +53,33 @@ export default function ModifyProject() {
             try {
                 const response = await fetch(`/api/projects/${projectId}`);
                 if (!response.ok) {
-                    const errorMessage = await response.text();  // Récupérer le message d'erreur
-                    console.error("Erreur API:", errorMessage);  // Afficher l'erreur dans la console
+                    const errorMessage = await response.text();
+                    console.error("Erreur API:", errorMessage);
                     throw new Error(errorMessage);
                 }
 
                 const projectData = await response.json();
                 setProject(projectData);
             } catch (error: unknown) {
-                if (error instanceof Error) {
-                    console.error("Erreur lors de la récupération du projet:", error.message);
-                    setError("Erreur lors de la récupération du projet");
-                } else {
-                    console.error("Erreur inconnue lors de la récupération du projet.");
-                }
+                console.error("Erreur lors de la récupération du projet:", error);
+                setError("Erreur lors de la récupération du projet");
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchUser();
         fetchProject();
-        setLoading(false);
     }, [projectId, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!project) return;  // Vérifiez que les données du projet existent
+        if (!project) return;
 
-        // Vérifiez que les champs requis sont remplis avant d'envoyer la requête PUT
-        if (!project.title || !project.description || !project.imageUrl || !project.moreUrl) {
-            alert("Tous les champs doivent être remplis");
+        // Seuls title, description et imageUrl sont requis
+        if (!project.title || !project.description || !project.imageUrl) {
+            alert("Les champs titre, description et URL de l'image sont requis");
             return;
         }
 
@@ -103,9 +92,7 @@ export default function ModifyProject() {
 
             if (!response.ok) throw new Error("Erreur lors de la mise à jour du projet");
 
-            // Nous n'utilisons plus 'updatedProject', donc cette ligne est supprimée
             router.push("/projects");
-            alert("Le projet a été mis à jour avec succès");
         } catch (error) {
             alert("Erreur lors de la mise à jour du projet");
             console.error(error);
@@ -122,63 +109,80 @@ export default function ModifyProject() {
             {project && (
                 <form onSubmit={handleSubmit} className="p-4 space-y-4">
                     <div>
-                        <label htmlFor="title" className="block">Titre</label>
+                        <label htmlFor="title" className="block text-gray-300">
+                            Titre
+                        </label>
                         <input
                             id="title"
                             type="text"
                             value={project.title}
                             onChange={(e) => setProject({ ...project, title: e.target.value })}
-                            className="w-full p-2 mt-1 bg-gray-800 text-white border rounded"
+                            className="w-full p-2 mt-1 bg-gray-800 text-white border rounded focus:outline-none focus:border-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="description" className="block">Description</label>
+                        <label htmlFor="description" className="block text-gray-300">
+                            Description
+                        </label>
                         <textarea
                             id="description"
                             value={project.description}
                             onChange={(e) => setProject({ ...project, description: e.target.value })}
-                            className="w-full p-2 mt-1 bg-gray-800 text-white border rounded"
+                            className="w-full p-2 mt-1 bg-gray-800 text-white border rounded focus:outline-none focus:border-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="imageUrl" className="block">URL de l&apos;image</label>
+                        <label htmlFor="imageUrl" className="block text-gray-300">
+                            URL de l'image
+                        </label>
                         <input
                             id="imageUrl"
                             type="url"
                             value={project.imageUrl}
                             onChange={(e) => setProject({ ...project, imageUrl: e.target.value })}
-                            className="w-full p-2 mt-1 bg-gray-800 text-white border rounded"
+                            className="w-full p-2 mt-1 bg-gray-800 text-white border rounded focus:outline-none focus:border-blue-500"
                             required
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="moreUrl" className="block">URL plus d&apos;infos</label>
+                        <label htmlFor="moreUrl" className="block text-gray-300">
+                            Lien GitHub (optionnel)
+                        </label>
                         <input
                             id="moreUrl"
                             type="url"
-                            value={project.moreUrl}
+                            value={project.moreUrl || ""}
                             onChange={(e) => setProject({ ...project, moreUrl: e.target.value })}
-                            className="w-full p-2 mt-1 bg-gray-800 text-white border rounded"
-                            required
+                            className="w-full p-2 mt-1 bg-gray-800 text-white border rounded focus:outline-none focus:border-blue-500"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="deploymentUrl" className="block text-gray-300">
+                            URL de déploiement (optionnel)
+                        </label>
+                        <input
+                            id="deploymentUrl"
+                            type="url"
+                            value={project.deploymentUrl || ""}
+                            onChange={(e) => setProject({ ...project, deploymentUrl: e.target.value })}
+                            className="w-full p-2 mt-1 bg-gray-800 text-white border rounded focus:outline-none focus:border-blue-500"
                         />
                     </div>
 
                     <div className="mt-4 flex space-x-2">
-                        <button
-                            type="submit"
-                            className="bg-blue-500 p-2 rounded"
-                        >
+                        <button type="submit" className="bg-blue-500 hover:bg-blue-600 p-2 rounded">
                             Sauvegarder les modifications
                         </button>
                         <button
                             type="button"
                             onClick={() => router.push("/projects")}
-                            className="bg-gray-500 p-2 rounded"
+                            className="bg-gray-500 hover:bg-gray-600 p-2 rounded"
                         >
                             Annuler
                         </button>

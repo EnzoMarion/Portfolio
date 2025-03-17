@@ -60,7 +60,7 @@ export default function SignIn() {
                 {error && <p className="text-red-500">{error}</p>}
                 <input
                     type="text"
-                    placeholder="Email ou pseudo"
+                    placeholder="Email"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     className="w-full p-2 rounded bg-gray-800 border border-gray-700"

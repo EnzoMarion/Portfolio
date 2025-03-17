@@ -14,6 +14,7 @@ interface Project {
     title: string;
     description: string;
     imageUrl: string;
+    createdAt: string; // Ajouté pour le tri
 }
 
 interface Message {
@@ -60,17 +61,22 @@ export default function Projects() {
             try {
                 const response = await fetch("/api/projects");
                 if (!response.ok) throw new Error("Erreur lors de la récupération des projets");
-                const data = await response.json();
-                setProjects(data);
-                data.forEach((project: Project) => fetchComments(project.id));
+                const data: Project[] = await response.json();
+                // Tri des projets du plus récent au moins récent
+                const sortedProjects = data.sort(
+                    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                );
+                setProjects(sortedProjects);
+                sortedProjects.forEach((project) => fetchComments(project.id));
             } catch (error) {
                 console.error("Erreur lors de la récupération des projets:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchUser();
         fetchProjects();
-        setLoading(false);
     }, [router]);
 
     const fetchComments = async (projectId: string) => {
@@ -114,7 +120,7 @@ export default function Projects() {
                 body: JSON.stringify({
                     commentId,
                     userId: user.id,
-                    isAdmin: user.role === "admin"
+                    isAdmin: user.role === "admin",
                 }),
             });
 
@@ -139,7 +145,7 @@ export default function Projects() {
                 body: JSON.stringify({
                     commentId,
                     content: editComment.content,
-                    userId: user.id
+                    userId: user.id,
                 }),
             });
 
@@ -185,7 +191,7 @@ export default function Projects() {
                             type="text"
                             value={editComment.content}
                             onChange={(e) =>
-                                setEditComment((prev) => prev ? { ...prev, content: e.target.value } : null)
+                                setEditComment((prev) => (prev ? { ...prev, content: e.target.value } : null))
                             }
                             className="bg-gray-800 text-white p-2 rounded-lg w-full border border-gray-600 focus:outline-none focus:border-blue-500"
                         />
@@ -205,7 +211,9 @@ export default function Projects() {
                         </div>
                     </div>
                 ) : (
-                    <div className={`p-3 rounded-lg ${depth > 0 ? "bg-gray-600" : "bg-gray-700"} flex justify-between items-start`}>
+                    <div
+                        className={`p-3 rounded-lg ${depth > 0 ? "bg-gray-600" : "bg-gray-700"} flex justify-between items-start`}
+                    >
                         <div>
                             <span className="font-semibold text-blue-300">{comment.user.pseudo}</span>
                             <span className="text-gray-300"> : {comment.content}</span>
@@ -250,9 +258,7 @@ export default function Projects() {
                             type="text"
                             placeholder="Répondre..."
                             value={newComment[projectId] || ""}
-                            onChange={(e) =>
-                                setNewComment((prev) => ({ ...prev, [projectId]: e.target.value }))
-                            }
+                            onChange={(e) => setNewComment((prev) => ({ ...prev, [projectId]: e.target.value }))}
                             className="bg-gray-800 text-white p-2 rounded-lg w-full border border-gray-600 focus:outline-none focus:border-blue-500"
                         />
                         <div className="flex gap-2">
@@ -299,7 +305,7 @@ export default function Projects() {
                         <div key={project.id} className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
                             <div className="relative">
                                 <Image
-                                    src={project.imageUrl.startsWith("/") ? project.imageUrl : `/${project.imageUrl}`}
+                                    src={project.imageUrl}
                                     alt={project.title}
                                     className="w-full h-48 object-cover"
                                     width={500}

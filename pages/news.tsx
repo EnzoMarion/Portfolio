@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 
 const supabase = createClientComponentClient();
@@ -12,6 +13,8 @@ interface NewsItem {
     id: string;
     title: string;
     content: string;
+    imageUrl: string;
+    moreUrl?: string;
     createdAt: string;
 }
 
@@ -49,15 +52,15 @@ export default function News() {
             } catch (error) {
                 console.error("Erreur lors de la récupération des actualités:", error);
                 setNews([]);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchUser();
         fetchNews();
-        setLoading(false);
     }, [router]);
 
-    // Supprimer une actualité (admin seulement)
     const handleDeleteNews = async (newsId: string) => {
         if (!user || user.role !== "admin") return;
 
@@ -87,7 +90,7 @@ export default function News() {
                 <div className="p-4">
                     <button
                         onClick={() => router.push("/news/add")}
-                        className="bg-green-500 p-2 rounded mb-4"
+                        className="bg-green-500 hover:bg-green-600 p-2 rounded mb-4"
                     >
                         Ajouter une actualité
                     </button>
@@ -105,19 +108,38 @@ export default function News() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {news.map((item) => (
                             <div key={item.id} className="p-4 bg-gray-800 rounded-lg shadow-md">
+                                <Image
+                                    src={item.imageUrl}
+                                    alt={item.title}
+                                    className="w-full h-48 object-cover rounded-lg mb-4"
+                                    width={400}
+                                    height={200}
+                                />
                                 <h2 className="text-xl font-bold">{item.title}</h2>
                                 <p className="text-gray-300">{item.content}</p>
+                                {item.moreUrl && (
+                                    <p className="mt-2">
+                                        <a
+                                            href={item.moreUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-400 hover:underline"
+                                        >
+                                            Plus d'infos
+                                        </a>
+                                    </p>
+                                )}
                                 <p className="text-gray-500 text-sm mt-2">
                                     Publié le {new Date(item.createdAt).toLocaleDateString()}
                                 </p>
                                 {user?.role === "admin" && (
                                     <div className="mt-4 flex space-x-2">
                                         <Link href={`/news/${item.id}/modify`}>
-                                            <button className="bg-yellow-500 p-2 rounded">Modifier</button>
+                                            <button className="bg-yellow-500 hover:bg-yellow-600 p-2 rounded">Modifier</button>
                                         </Link>
                                         <button
                                             onClick={() => handleDeleteNews(item.id)}
-                                            className="bg-red-500 p-2 rounded"
+                                            className="bg-red-500 hover:bg-red-600 p-2 rounded"
                                         >
                                             Supprimer
                                         </button>
