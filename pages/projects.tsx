@@ -349,10 +349,18 @@ export default function Projects() {
                     variants={titleVariants}
                     initial="hidden"
                     animate="visible"
-                    className="text-5xl sm:text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-[var(--accent-pink)] via-[var(--accent-purple)] to-[var(--accent-blue)] bg-clip-text text-transparent mb-6"
+                    className="text-5xl sm:text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-[var(--accent-pink)] via-[var(--accent-purple)] to-[var(--accent-blue)] bg-clip-text text-transparent mb-4"
                 >
                     Mes Projets
                 </motion.h1>
+                <motion.p
+                    variants={titleVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="text-[var(--gray-light)] text-base sm:text-lg md:text-xl text-center max-w-2xl mb-6"
+                >
+                    Retrouvez ici mes derniers projets : travaux personnels, collaborations, expérimentations et réalisations professionnelles. Un aperçu de mes compétences et de ma créativité à travers le temps !
+                </motion.p>
 
                 {user?.role === "admin" && (
                     <motion.div variants={sectionVariants} initial="hidden" animate="visible" className="mb-8">
