@@ -91,81 +91,83 @@ export default function Navbar() {
     };
 
     return (
-        <nav className="bg-[var(--gray-dark)] p-6 fixed top-0 left-0 w-full z-50 shadow-md">
-            <div className="max-w-6xl mx-auto flex justify-between items-center px-8">
-                {/* Logo/Nom */}
-                <Link href="/">
-                    <motion.div
-                        whileHover="hover"
-                        variants={linkVariants}
-                        className="text-3xl font-bold bg-gradient-to-r from-[var(--accent-pink)] via-[var(--accent-purple)] to-[var(--accent-blue)] bg-clip-text text-transparent mr-16"
-                    >
-                        Enzo Marion
-                    </motion.div>
-                </Link>
-
-                {/* Liens de navigation */}
-                <div className="flex items-center" style={{ gap: "5vw" }}>
-                    <Link href="/projects">
-                        <motion.span
+        <nav className="bg-[var(--gray-dark)] fixed top-0 left-0 w-full z-50 shadow-lg">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-20">
+                    {/* Logo/Nom */}
+                    <Link href="/">
+                        <motion.div
                             whileHover="hover"
                             variants={linkVariants}
-                            className="text-[var(--foreground)] hover:text-[var(--accent-purple)] text-xl"
+                            className="text-4xl font-bold bg-gradient-to-r from-[var(--accent-pink)] via-[var(--accent-purple)] to-[var(--accent-blue)] bg-clip-text text-transparent"
                         >
-                            Projets
-                        </motion.span>
+                            Enzo Marion
+                        </motion.div>
                     </Link>
-                    <Link href="/news">
-                        <motion.span
-                            whileHover="hover"
-                            variants={linkVariants}
-                            className="text-[var(--foreground)] hover:text-[var(--accent-purple)] text-xl"
-                        >
-                            Actualités
-                        </motion.span>
-                    </Link>
-                    <button onClick={scrollToContact}>
-                        <motion.span
-                            whileHover="hover"
-                            variants={linkVariants}
-                            className="text-[var(--foreground)] hover:text-[var(--accent-purple)] text-xl"
-                        >
-                            Contact
-                        </motion.span>
-                    </button>
-                </div>
 
-                {/* Section utilisateur */}
-                <div className="flex items-center" style={{ gap: "1vw" }}>
-                    {user ? (
-                        <>
-                            <motion.p
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="text-lg text-[var(--gray-light)]"
-                            >
-                                {user.pseudo}
-                            </motion.p>
-                            <motion.button
-                                onClick={handleSignOut}
-                                whileHover="hover"
-                                variants={buttonVariants}
-                                className="text-lg px-6 py-2 text-[var(--foreground)] bg-[var(--accent-blue)] rounded-md border border-[var(--accent-blue)] hover:text-[var(--foreground)]"
-                            >
-                                Se déconnecter
-                            </motion.button>
-                        </>
-                    ) : (
-                        <Link href="/auth/signin">
+                    {/* Liens de navigation (centrés) */}
+                    <div className="flex-1 flex justify-center items-center gap-8">
+                        <Link href="/projects">
                             <motion.span
                                 whileHover="hover"
                                 variants={linkVariants}
-                                className="text-lg text-[var(--accent-blue)] hover:text-[var(--accent-purple)]"
+                                className="text-[var(--foreground)] text-2xl"
                             >
-                                Se connecter
+                                Projets
                             </motion.span>
                         </Link>
-                    )}
+                        <Link href="/news">
+                            <motion.span
+                                whileHover="hover"
+                                variants={linkVariants}
+                                className="text-[var(--foreground)] text-2xl"
+                            >
+                                Actualités
+                            </motion.span>
+                        </Link>
+                        <button onClick={scrollToContact}>
+                            <motion.span
+                                whileHover="hover"
+                                variants={linkVariants}
+                                className="text-[var(--foreground)] text-2xl"
+                            >
+                                Contact
+                            </motion.span>
+                        </button>
+                    </div>
+
+                    {/* Section utilisateur */}
+                    <div className="flex items-center gap-6">
+                        {user ? (
+                            <>
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-xl text-[var(--gray-light)]"
+                                >
+                                    {user.pseudo}
+                                </motion.p>
+                                <motion.button
+                                    onClick={handleSignOut}
+                                    whileHover="hover"
+                                    variants={buttonVariants}
+                                    className="text-xl px-8 py-3 text-[var(--foreground)] bg-[var(--accent-blue)] rounded-md border border-[var(--accent-blue)]"
+                                >
+                                    Se déconnecter
+                                </motion.button>
+                            </>
+                        ) : (
+                            <Link href="/auth/signin">
+                                <motion.span
+                                    whileHover="hover"
+                                    variants={linkVariants}
+                                    className="text-xl text-[var(--accent-blue)]"
+                                >
+                                    Se connecter
+                                </motion.span>
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
         </nav>
