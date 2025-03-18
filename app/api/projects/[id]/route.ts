@@ -1,11 +1,10 @@
-// app/api/projects/[id]/route.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // Récupérer un projet par ID (GET)
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params;
-
+export async function GET(request: NextRequest, context: any) {
+    const { id } = context.params as { id: string };
     try {
         const project = await prisma.project.findUnique({ where: { id } });
         if (!project) {
@@ -19,9 +18,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // Mettre à jour un projet par ID (PUT)
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params;
-
+export async function PUT(request: NextRequest, context: any) {
+    const { id } = context.params as { id: string };
     try {
         const body = await request.json();
         const updatedProject = await prisma.project.update({
@@ -36,9 +34,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // Supprimer un projet par ID (DELETE)
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-    const { id } = params;
-
+export async function DELETE(request: NextRequest, context: any) {
+    const { id } = context.params as { id: string };
     try {
         await prisma.project.delete({ where: { id } });
         return NextResponse.json({ message: "Projet supprimé" }, { status: 200 });

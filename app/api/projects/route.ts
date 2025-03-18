@@ -1,24 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Récupérer un projet spécifique par ID (GET)
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+// Récupérer tous les projets (GET)
+export async function GET(req: NextRequest) {
     try {
-        const { id } = params; // Récupère l'ID depuis les paramètres dynamiques
-
-        const project = await prisma.project.findUnique({
-            where: { id },
+        const projects = await prisma.project.findMany({
+            orderBy: { createdAt: "desc" },
         });
-
-        if (!project) {
-            return NextResponse.json({ error: "Projet non trouvé" }, { status: 404 });
-        }
-
-        return NextResponse.json(project, { status: 200 });
+        return NextResponse.json(projects, { status: 200 });
     } catch (error) {
         console.error(error);
         return NextResponse.json(
-            { error: "Erreur lors de la récupération du projet" },
+            { error: "Erreur lors de la récupération des projets" },
+            { status: 500 }
+        );
+    }
+}
+
+// Ajouter un projet (POST)
+export async function POST(req: NextRequest) {
+    try {
+        const { title, description, imageUrl, moreUrl, deploymentUrl } = await req.json();
+
+        if (!title || !description || !imageUrl) {
+            return NextResponse.json(
+                { error: "Les champs titre, description et imageUrl sont requis" },
+                { status: 400 }
+            );
+        }
+
+        const newProject = await prisma.project.create({
+            data: {
+                title,
+                description,
+                imageUrl,
+                moreUrl: moreUrl || null,
+                deploymentUrl: deploymentUrl || null,
+                createdAt: new Date(),
+            },
+        });
+
+        return NextResponse.json(newProject, { status: 201 });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { error: "Erreur lors de la création du projet" },
             { status: 500 }
         );
     }
