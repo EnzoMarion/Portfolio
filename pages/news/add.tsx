@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { motion } from "framer-motion";
 
 const supabase = createClientComponentClient();
 
@@ -65,78 +66,121 @@ export default function AddNews() {
         }
     };
 
+    // Variants pour les animations
+    const containerVariants = {
+        hidden: { opacity: 0, y: 50 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+    };
+
+    const titleVariants = {
+        hidden: { opacity: 0, scale: 0.5 },
+        visible: { opacity: 1, scale: 1, transition: { duration: 1, ease: "easeOut", delay: 0.2 } },
+    };
+
+    const inputVariants = {
+        hidden: { opacity: 0, x: -50 },
+        visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } },
+    };
+
     if (!user || user.role !== "admin") {
-        return <p>Chargement...</p>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+                <motion.p
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+                    className="text-[var(--foreground)] text-xl"
+                >
+                    Chargement en cours...
+                </motion.p>
+            </div>
+        );
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white">
-            <h1 className="text-3xl p-4">Ajouter une actualité</h1>
-            <form onSubmit={handleSubmit} className="p-4 space-y-4">
-                <div>
-                    <label htmlFor="title" className="block text-gray-300">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--background)] text-[var(--foreground)] p-4">
+            <motion.h1
+                variants={titleVariants}
+                initial="hidden"
+                animate="visible"
+                className="text-4xl sm:text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-[var(--accent-pink)] via-[var(--accent-purple)] to-[var(--accent-blue)] bg-clip-text text-transparent mb-8"
+            >
+                Ajouter une actualité
+            </motion.h1>
+            <motion.form
+                onSubmit={handleSubmit}
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="w-full max-w space-y-6 p-6 bg-[var(--gray-dark)] rounded-xl shadow-lg"
+            >
+                <motion.div variants={inputVariants}>
+                    <label htmlFor="title" className="block text-[var(--gray-light)] mb-2">
                         Titre
                     </label>
                     <input
                         type="text"
                         id="title"
-                        className="w-full p-2 mt-2 bg-gray-800 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
+                        className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--accent-blue)] focus:outline-none focus:border-[var(--accent-purple)] text-[var(--foreground)]"
                         required
                     />
-                </div>
-                <div>
-                    <label htmlFor="content" className="block text-gray-300">
+                </motion.div>
+                <motion.div variants={inputVariants}>
+                    <label htmlFor="content" className="block text-[var(--gray-light)] mb-2">
                         Contenu
                     </label>
                     <textarea
                         id="content"
-                        className="w-full p-2 mt-2 bg-gray-800 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
+                        className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--accent-blue)] focus:outline-none focus:border-[var(--accent-purple)] text-[var(--foreground)]"
                         required
                     />
-                </div>
-                <div>
-                    <label htmlFor="imageUrl" className="block text-gray-300">
+                </motion.div>
+                <motion.div variants={inputVariants}>
+                    <label htmlFor="imageUrl" className="block text-[var(--gray-light)] mb-2">
                         URL de l'image
                     </label>
                     <input
                         type="url"
                         id="imageUrl"
-                        className="w-full p-2 mt-2 bg-gray-800 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
                         value={imageUrl}
                         onChange={(e) => setImageUrl(e.target.value)}
+                        className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--accent-blue)] focus:outline-none focus:border-[var(--accent-purple)] text-[var(--foreground)]"
                         required
                     />
-                </div>
-                <div>
-                    <label htmlFor="moreUrl" className="block text-gray-300">
+                </motion.div>
+                <motion.div variants={inputVariants}>
+                    <label htmlFor="moreUrl" className="block text-[var(--gray-light)] mb-2">
                         URL supplémentaire (optionnel)
                     </label>
                     <input
                         type="url"
                         id="moreUrl"
-                        className="w-full p-2 mt-2 bg-gray-800 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
                         value={moreUrl}
                         onChange={(e) => setMoreUrl(e.target.value)}
                         placeholder="ex: certification, site d'école, etc."
+                        className="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--accent-blue)] focus:outline-none focus:border-[var(--accent-purple)] text-[var(--foreground)]"
                     />
-                </div>
-                <div className="flex gap-4">
-                    <button type="submit" className="bg-green-500 hover:bg-green-600 p-2 rounded">
+                </motion.div>
+                <motion.div variants={inputVariants} className="flex gap-4">
+                    <button
+                        type="submit"
+                        className="w-full bg-[var(--accent-blue)] hover:bg-[var(--accent-purple)] text-[var(--foreground)] p-3 rounded-lg transition-all duration-300"
+                    >
                         Ajouter
                     </button>
                     <button
                         type="button"
                         onClick={() => router.push("/news")}
-                        className="bg-gray-500 hover:bg-gray-600 p-2 rounded"
+                        className="w-full bg-[var(--gray-dark)] hover:bg-[var(--gray-light)] text-[var(--foreground)] p-3 rounded-lg transition-all duration-300"
                     >
                         Annuler
                     </button>
-                </div>
-            </form>
+                </motion.div>
+            </motion.form>
         </div>
     );
 }

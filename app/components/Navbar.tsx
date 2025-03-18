@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 interface User {
     email: string;
@@ -26,7 +27,7 @@ export default function Navbar() {
                 } else {
                     setUser({
                         email: session.user.email || "",
-                        pseudo: session.user.user_metadata?.pseudo || "Pseudo",
+                        pseudo: session.user.user_metadata?.pseudo || "Admin",
                     });
                 }
             } catch (error) {
@@ -43,7 +44,7 @@ export default function Navbar() {
             if (event === "INITIAL_SESSION" || event === "SIGNED_IN") {
                 setUser(
                     session?.user
-                        ? { email: session.user.email || "", pseudo: session.user.user_metadata?.pseudo || "Pseudo" }
+                        ? { email: session.user.email || "", pseudo: session.user.user_metadata?.pseudo || "Admin" }
                         : null
                 );
                 setLoading(false);
@@ -63,36 +64,106 @@ export default function Navbar() {
         router.push("/auth/signin");
     };
 
-    if (loading) return null; // Éviter le rendu pendant le chargement
+    const scrollToContact = () => {
+        const contactSection = document.getElementById("contact-section");
+        if (contactSection) {
+            contactSection.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+
+    if (loading) return null;
+
+    const linkVariants = {
+        hover: {
+            scale: 1.1,
+            color: "var(--accent-purple)",
+            transition: { duration: 0.3 },
+        },
+    };
+
+    const buttonVariants = {
+        hover: {
+            scale: 1.1,
+            backgroundColor: "var(--accent-purple)",
+            borderColor: "var(--accent-purple)",
+            transition: { duration: 0.3 },
+        },
+    };
 
     return (
-        <nav className="bg-gray-800 p-4">
-            <div className="flex justify-between items-center w-full">
-                <Link href="/" className="hover:text-green-500 text-white">
-                    <div className="text-xl text-white">Enzo Marion</div>
+        <nav className="bg-[var(--gray-dark)] p-6 fixed top-0 left-0 w-full z-50 shadow-md">
+            <div className="max-w-6xl mx-auto flex justify-between items-center px-8">
+                {/* Logo/Nom */}
+                <Link href="/">
+                    <motion.div
+                        whileHover="hover"
+                        variants={linkVariants}
+                        className="text-3xl font-bold bg-gradient-to-r from-[var(--accent-pink)] via-[var(--accent-purple)] to-[var(--accent-blue)] bg-clip-text text-transparent mr-16"
+                    >
+                        Enzo Marion
+                    </motion.div>
                 </Link>
-                <div className="flex space-x-8">
-                    <Link href="/projects" className="hover:text-green-500 text-white">
-                        Projets
+
+                {/* Liens de navigation */}
+                <div className="flex items-center" style={{ gap: "5vw" }}>
+                    <Link href="/projects">
+                        <motion.span
+                            whileHover="hover"
+                            variants={linkVariants}
+                            className="text-[var(--foreground)] hover:text-[var(--accent-purple)] text-xl"
+                        >
+                            Projets
+                        </motion.span>
                     </Link>
-                    <Link href="/news" className="hover:text-green-500 text-white">
-                        Actualités
+                    <Link href="/news">
+                        <motion.span
+                            whileHover="hover"
+                            variants={linkVariants}
+                            className="text-[var(--foreground)] hover:text-[var(--accent-purple)] text-xl"
+                        >
+                            Actualités
+                        </motion.span>
                     </Link>
+                    <button onClick={scrollToContact}>
+                        <motion.span
+                            whileHover="hover"
+                            variants={linkVariants}
+                            className="text-[var(--foreground)] hover:text-[var(--accent-purple)] text-xl"
+                        >
+                            Contact
+                        </motion.span>
+                    </button>
                 </div>
-                <div className="flex items-center space-x-6">
+
+                {/* Section utilisateur */}
+                <div className="flex items-center" style={{ gap: "1vw" }}>
                     {user ? (
                         <>
-                            <p className="text-sm text-white">{user.pseudo}</p>
-                            <button
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="text-lg text-[var(--gray-light)]"
+                            >
+                                {user.pseudo}
+                            </motion.p>
+                            <motion.button
                                 onClick={handleSignOut}
-                                className="text-sm text-red-500 hover:text-red-600"
+                                whileHover="hover"
+                                variants={buttonVariants}
+                                className="text-lg px-6 py-2 text-[var(--foreground)] bg-[var(--accent-blue)] rounded-md border border-[var(--accent-blue)] hover:text-[var(--foreground)]"
                             >
                                 Se déconnecter
-                            </button>
+                            </motion.button>
                         </>
                     ) : (
-                        <Link href="/auth/signin" className="text-sm text-blue-500 hover:text-blue-600">
-                            Se connecter
+                        <Link href="/auth/signin">
+                            <motion.span
+                                whileHover="hover"
+                                variants={linkVariants}
+                                className="text-lg text-[var(--accent-blue)] hover:text-[var(--accent-purple)]"
+                            >
+                                Se connecter
+                            </motion.span>
                         </Link>
                     )}
                 </div>
