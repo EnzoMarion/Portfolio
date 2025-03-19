@@ -267,7 +267,7 @@ export default function Dashboard() {
                                                 {project.description.slice(0, 100)}
                                             </p>
                                             <p className="text-xs text-[var(--gray-light)] mt-3">
-                                                Créé le {new Date(project.createdAt).toLocaleDateString()}
+                                                Date : {new Date(project.createdAt).toLocaleDateString()}
                                             </p>
                                         </div>
                                     </Link>
@@ -335,7 +335,7 @@ export default function Dashboard() {
                                             {item.content.slice(0, 100)}
                                         </p>
                                         <p className="text-xs text-[var(--gray-light)] mt-3">
-                                            Publié le {new Date(item.createdAt).toLocaleDateString()}
+                                            Date : {new Date(item.createdAt).toLocaleDateString()}
                                         </p>
                                     </div>
                                 </motion.div>

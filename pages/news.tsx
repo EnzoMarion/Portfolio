@@ -244,7 +244,7 @@ export default function News() {
                                                             </p>
                                                         )}
                                                         <p className="text-[var(--gray-light)] text-xs mt-2">
-                                                            Date {new Date(item.createdAt).toLocaleDateString()}
+                                                            Date : {new Date(item.createdAt).toLocaleDateString()}
                                                         </p>
                                                         {user?.role === "admin" && (
                                                             <div className="mt-4 flex space-x-2">
