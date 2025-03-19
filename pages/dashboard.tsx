@@ -118,7 +118,7 @@ export default function Dashboard() {
             transition: { duration: 0.6, ease: "easeOut", type: "spring", stiffness: 100 }
         },
         hover: {
-            scale: 1.05, // Plus de rotation ici
+            scale: 1.05,
             borderColor: "var(--accent-purple)",
             boxShadow: "0 15px 30px rgba(255, 105, 180, 0.6)",
             transition: { duration: 0.3 },
@@ -169,7 +169,7 @@ export default function Dashboard() {
                     className="text-[var(--gray-light)] text-lg sm:text-xl md:text-2xl text-center max-w-3xl mb-12"
                 >
                     {user
-                        ? `Salut ${user.pseudo} ! Explore mes projets, mes compétences et mes dernières actualités.`
+                        ? `Bonjour ${user.pseudo} ! Explore mes projets, mes compétences et mes dernières actualités.`
                         : "Découvrez mon univers créatif, mes compétences techniques et mes projets récents."}
                 </motion.p>
 
@@ -182,7 +182,7 @@ export default function Dashboard() {
                 >
                     <h2 className="text-4xl sm:text-5xl font-bold text-[var(--accent-pink)] mb-6">À propos de moi</h2>
                     <p className="text-[var(--gray-light)] text-lg sm:text-xl leading-relaxed">
-                        [À compléter : Présentez-vous ici avec une brève description de qui vous êtes et de vos passions.]
+                        Je m’appelle Enzo Marion, né en 2003 dans la Drôme. Passionné par l’informatique et le développement web depuis plusieurs années, j’ai choisi d’en faire mon métier. En dehors de la programmation, j’aime relever des défis, explorer de nouvelles technologies et m’investir dans des projets créatifs. Curieux et persévérant, je suis toujours motivé pour apprendre et repousser mes limites.
                     </p>
                 </motion.div>
 
@@ -195,7 +195,7 @@ export default function Dashboard() {
                 >
                     <h2 className="text-4xl sm:text-5xl font-bold text-[var(--accent-purple)] mb-6">Mon Parcours</h2>
                     <p className="text-[var(--gray-light)] text-lg sm:text-xl leading-relaxed">
-                        [À compléter : Décrivez votre parcours éducatif ou professionnel ici.]
+                        Actuellement en 3e année de BUT MMI (Métiers du Multimédia et de l’Internet) spécialisation développement web, j’ai auparavant obtenu un BTS SIO (Services Informatiques aux Organisations) option SLAM (Solutions Logicielles et Applications Métiers) après un baccalauréat général scientifique avec les spécialités Mathématiques, Physique-Chimie et SVT. Ce parcours m’a permis de développer des compétences solides en développement web (JavaScript, PHP, SQL, ...) et de maîtriser des outils modernes comme React, Next.js et Node.js, tout en cultivant une rigueur scientifique héritée de mon bac.
                     </p>
                 </motion.div>
 
@@ -292,7 +292,7 @@ export default function Dashboard() {
                     </motion.p>
                 </motion.div>
 
-                {/* Actualités различающиеся */}
+                {/* Actualités */}
                 <motion.div
                     variants={sectionVariants}
                     initial="hidden"
