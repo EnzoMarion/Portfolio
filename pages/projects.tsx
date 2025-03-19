@@ -344,7 +344,7 @@ export default function Projects() {
     return (
         <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col">
             <Navbar />
-            <div className="flex flex-col items-center justify-center mt-16 px-4 sm:px-8 md:px-12 flex-grow w-full max-w-[100vw]">
+            <div className="flex flex-col items-center justify-center mt-16 px-4 sm:px-8 md:px-12 pb-[3rem] flex-grow w-full max-w-[100vw]">
                 <motion.h1
                     variants={titleVariants}
                     initial="hidden"

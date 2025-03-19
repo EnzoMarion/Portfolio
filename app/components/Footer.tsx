@@ -64,7 +64,7 @@ export default function Footer() {
         }
 
         setSending(true);
-        setStatusMessage({ text: "", type: null }); // Réinitialiser le message avant envoi
+        setStatusMessage({ text: "", type: null });
 
         try {
             const emailData = {
@@ -101,18 +101,21 @@ export default function Footer() {
     if (loading) return null;
 
     return (
-        <footer className="bg-[var(--gray-dark)] py-12 mt-12">
-            <div className="max-w-5xl mx-auto px-6">
-                <div className="flex flex-wrap justify-between gap-4 mx-auto">
+        <footer
+            className="bg-[var(--gray-dark)] py-12 mt-12 border-t-2 border-[var(--accent-blue)]"
+            style={{ display: "flex", justifyContent: "space-around" }}
+        >
+            <div className="max-w-6xl mx-auto px-8 sm:px-12 lg:px-16">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
                     {/* Mes réseaux */}
-                    <div className="w-full md:w-1/4 mb-8 md:mb-0">
-                        <h3 className="text-2xl font-bold text-[var(--accent-blue)] mb-4">Mes réseaux</h3>
-                        <div className="flex flex-col space-y-3">
+                    <div className="flex flex-col space-y-6">
+                        <h3 className="text-2xl font-bold text-[var(--accent-blue)]">Mes réseaux</h3>
+                        <div className="flex flex-col space-y-4">
                             <a
-                                href="https://linkedin.com/in/enzo-marion"
+                                href="https://www.linkedin.com/in/enzo-marion-227495262/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center space-x-3 text-[var(--accent-blue)] hover:text-[var(--accent-blue)] transition-all duration-300 group"
+                                className="flex items-center space-x-3 text-[var(--accent-blue)] hover:text-[var(--accent-purple)] transition-all duration-300 group"
                             >
                                 <div className="p-2 rounded-full bg-[var(--background)] bg-opacity-10 group-hover:bg-opacity-20 transition-all">
                                     <Image
@@ -126,10 +129,10 @@ export default function Footer() {
                                 <span>LinkedIn</span>
                             </a>
                             <a
-                                href="https://github.com/enzo-marion"
+                                href="https://github.com/EnzoMarion"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center space-x-3 text-[var(--accent-blue)] hover:text-[var(--accent-blue)] transition-all duration-300 group"
+                                className="flex items-center space-x-3 text-[var(--accent-blue)] hover:text-[var(--accent-purple)] transition-all duration-300 group"
                             >
                                 <div className="p-2 rounded-full bg-[var(--background)] bg-opacity-10 group-hover:bg-opacity-20 transition-all">
                                     <Image
@@ -146,15 +149,26 @@ export default function Footer() {
                     </div>
 
                     {/* Mes coordonnées */}
-                    <div className="w-full md:w-1/4 mb-8 md:mb-0">
-                        <h3 className="text-2xl font-bold text-[var(--accent-blue)] mb-4">Mes coordonnées</h3>
-                        <div className="flex flex-col space-y-3">
+                    <div className="flex flex-col space-y-6">
+                        <h3 className="text-2xl font-bold text-[var(--accent-blue)]">Mes coordonnées</h3>
+                        <div className="flex flex-col space-y-4">
                             <a
                                 href="tel:0750315674"
                                 className="flex items-center space-x-3 text-[var(--gray-light)] hover:text-[var(--accent-blue)] transition-all duration-300 group"
                             >
                                 <div className="p-2 rounded-full bg-[var(--background)] bg-opacity-10 group-hover:bg-opacity-20 transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent-blue)]">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="text-[var(--accent-blue)]"
+                                    >
                                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                                     </svg>
                                 </div>
@@ -165,7 +179,18 @@ export default function Footer() {
                                 className="flex items-center space-x-3 text-[var(--gray-light)] hover:text-[var(--accent-blue)] transition-all duration-300 group"
                             >
                                 <div className="p-2 rounded-full bg-[var(--background)] bg-opacity-10 group-hover:bg-opacity-20 transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--accent-blue)]">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="text-[var(--accent-blue)]"
+                                    >
                                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                                         <polyline points="22,6 12,13 2,6"></polyline>
                                     </svg>
@@ -176,13 +201,13 @@ export default function Footer() {
                     </div>
 
                     {/* Me contacter */}
-                    <div id="contact-section" className="w-full md:w-2/5 md:mx-auto">
-                        <h3 className="text-2xl font-bold text-[var(--accent-blue)] mb-4">Me contacter</h3>
-                        <p className="text-[var(--gray-light)] text-sm mb-4">
+                    <div id="contact-section" className="flex flex-col space-y-6">
+                        <h3 className="text-2xl font-bold text-[var(--accent-blue)]">Me contacter</h3>
+                        <p className="text-[var(--gray-light)] text-sm">
                             Envoyez-moi un message directement depuis ce formulaire, je vous répondrai par email dès que possible !
                         </p>
                         {user ? (
-                            <form onSubmit={handleSendEmail} className="flex flex-col space-y-4">
+                            <form onSubmit={handleSendEmail} className="flex flex-col space-y-6">
                                 <input
                                     type="text"
                                     value={subject}
@@ -202,7 +227,7 @@ export default function Footer() {
                                 <button
                                     type="submit"
                                     disabled={sending}
-                                    className="px-6 py-2 bg-[var(--accent-blue)] text-[var(--foreground)] rounded-md hover:bg-opacity-90 transition-all duration-300 disabled:opacity-50 self-start"
+                                    className="inline-block px-6 py-3 text-[var(--accent-blue)] text-lg border-2 border-[var(--accent-blue)] rounded-lg hover:bg-[var(--accent-purple)] hover:text-[var(--foreground)] hover:border-[var(--accent-purple)] transition-all duration-300"
                                 >
                                     {sending ? "Envoi en cours..." : "Envoyer"}
                                 </button>
@@ -211,7 +236,7 @@ export default function Footer() {
                                         className={`text-sm mt-2 ${
                                             statusMessage.type === "success"
                                                 ? "text-[var(--accent-blue)]"
-                                                : "text-[var(--accent-blue)]"
+                                                : "text-[var(--accent-pink)]"
                                         }`}
                                     >
                                         {statusMessage.text}
@@ -222,20 +247,15 @@ export default function Footer() {
                             <p className="text-[var(--gray-light)]">
                                 <Link
                                     href="/auth/signin"
-                                    className="text-[var(--accent-blue)] hover:text-[var(--accent-blue)] hover:underline"
+                                    className="text-[var(--accent-blue)] hover:text-[var(--accent-purple)] hover:underline"
                                 >
                                     Connectez-vous
                                 </Link>{" "}
-                                pour m'envoyer un message via ce formulaire.
+                                pour m’envoyer un message via ce formulaire.
                             </p>
                         )}
                     </div>
                 </div>
-            </div>
-            <div className="max-w-5xl mx-auto px-6 mt-8 pt-6 border-t border-[var(--background)] border-opacity-20">
-                <p className="text-[var(--gray-light)] text-sm text-center">
-                    © {new Date().getFullYear()} Enzo Marion. Tous droits réservés.
-                </p>
             </div>
         </footer>
     );
