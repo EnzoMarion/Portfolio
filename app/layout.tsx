@@ -13,9 +13,10 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 });
 
+// Définir metadata avec des valeurs par défaut pour éviter null
 export const metadata: Metadata = {
-    title: "Portfolio Enzo Marion",
-    description: "Portfolio personnel d'Enzo Marion, développeur web passionné",
+    title: "Portfolio Enzo Marion", // Toujours une string
+    description: "Portfolio personnel d'Enzo Marion, développeur web passionné", // Toujours une string
 };
 
 export default function RootLayout({
@@ -26,8 +27,8 @@ export default function RootLayout({
     return (
         <html lang="en">
         <Head>
-            <title>{metadata.title}</title>
-            <meta name="description" content={metadata.description} />
+            <title>{metadata.title as string}</title> {/* Cast en string car on sait qu'il est défini */}
+            <meta name="description" content={metadata.description as string} /> {/* Idem */}
         </Head>
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
