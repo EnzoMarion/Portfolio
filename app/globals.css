@@ -21,6 +21,15 @@ body {
   font-family: 'Inter', sans-serif;
   line-height: 1.6;
   font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Effet de glow pour les particules */
+.particle-glow {
+  box-shadow: 0 0 20px 10px rgba(255, 105, 180, 0.5), 0 0 40px 20px rgba(138, 43, 226, 0.3);
+  filter: blur(2px);
 }
 
 h1, h2, h3, h4, h5, h6 {

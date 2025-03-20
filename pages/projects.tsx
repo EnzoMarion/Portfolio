@@ -29,6 +29,42 @@ interface Message {
     replies?: Message[];
 }
 
+// Composant pour les particules animées
+const CrazyBackground = () => {
+    const particleVariants = {
+        animate: (i: number) => ({
+            x: [0, Math.random() * 400 - 200, 0],
+            y: [0, Math.random() * 400 - 200, 0],
+            scale: [1, 1.5, 1],
+            opacity: [0.2, 0.5, 0.2],
+            transition: {
+                duration: 5 + i * 1.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+            },
+        }),
+    };
+
+    return (
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            {Array.from({ length: 20 }).map((_, i) => (
+                <motion.div
+                    key={`particle-${i}`}
+                    className="absolute w-6 h-6 rounded-full particle-glow"
+                    style={{
+                        top: `${Math.random() * 100}%`,
+                        left: `${Math.random() * 100}%`,
+                        background: `radial-gradient(circle, var(--accent-${["pink", "purple", "blue"][i % 3]}) 20%, transparent 70%)`,
+                    }}
+                    variants={particleVariants}
+                    animate="animate"
+                    custom={i}
+                />
+            ))}
+        </div>
+    );
+};
+
 export default function Projects() {
     const [user, setUser] = useState<{ id: string; email: string; pseudo: string; role: string } | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
@@ -179,7 +215,6 @@ export default function Projects() {
     const truncateDescription = (text: string, maxLength: number = 160) =>
         text.length <= maxLength ? text : text.substring(0, maxLength) + "...";
 
-    // Variants pour les animations
     const sectionVariants = {
         hidden: { opacity: 0, y: 100, rotate: -5 },
         visible: {
@@ -342,9 +377,12 @@ export default function Projects() {
         );
 
     return (
-        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col overflow-x-hidden relative">
+            {/* Ajout des particules */}
+            <CrazyBackground />
+
             <Navbar />
-            <div className="flex flex-col items-center justify-center mt-16 px-4 sm:px-8 md:px-12 pb-[3rem] flex-grow w-full max-w-[100vw]">
+            <div className="flex flex-col items-center justify-center mt-16 px-4 sm:px-8 md:px-12 pb-[3rem] flex-grow w-full max-w-[100vw] z-10">
                 <motion.h1
                     variants={titleVariants}
                     initial="hidden"

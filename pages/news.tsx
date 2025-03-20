@@ -20,6 +20,42 @@ interface NewsItem {
     createdAt: string;
 }
 
+// Composant pour le fond animé avec particules
+const CrazyBackground = () => {
+    const particleVariants = {
+        animate: (i: number) => ({
+            x: [0, Math.random() * 400 - 200, 0],
+            y: [0, Math.random() * 400 - 200, 0],
+            scale: [1, 1.5, 1],
+            opacity: [0.2, 0.5, 0.2],
+            transition: {
+                duration: 5 + i * 1.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+            },
+        }),
+    };
+
+    return (
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            {Array.from({ length: 20 }).map((_, i) => (
+                <motion.div
+                    key={`particle-${i}`}
+                    className="absolute w-6 h-6 rounded-full particle-glow"
+                    style={{
+                        top: `${Math.random() * 100}%`,
+                        left: `${Math.random() * 100}%`,
+                        background: `radial-gradient(circle, var(--accent-${["pink", "purple", "blue"][i % 3]}) 20%, transparent 70%)`,
+                    }}
+                    variants={particleVariants}
+                    animate="animate"
+                    custom={i}
+                />
+            ))}
+        </div>
+    );
+};
+
 export default function News() {
     const [user, setUser] = useState<{ id: string; email: string; pseudo: string; role: string } | null>(null);
     const [news, setNews] = useState<NewsItem[]>([]);
@@ -49,7 +85,6 @@ export default function News() {
                 const response = await fetch("/api/news");
                 if (!response.ok) throw new Error("Erreur lors de la récupération des actualités");
                 const data = await response.json();
-                // Trier par date décroissante (plus récent en haut)
                 const sortedNews = data.sort(
                     (a: NewsItem, b: NewsItem) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                 );
@@ -84,7 +119,6 @@ export default function News() {
         }
     };
 
-    // Variants pour les animations (style dashboard.tsx)
     const sectionVariants = {
         hidden: { opacity: 0, y: 100, rotate: -5 },
         visible: {
@@ -116,7 +150,6 @@ export default function News() {
         visible: { opacity: 1, scale: 1, transition: { duration: 1, ease: "easeOut", delay: 0.2 } },
     };
 
-    // Grouper les actualités par année
     const groupNewsByYear = () => {
         const grouped: { [year: string]: NewsItem[] } = {};
         news.forEach((item) => {
@@ -146,9 +179,12 @@ export default function News() {
         );
 
     return (
-        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col overflow-x-hidden relative">
+            {/* Fond animé avec particules */}
+            <CrazyBackground />
+
             <Navbar />
-            <div className="flex flex-col items-center justify-center mt-16 px-4 sm:px-8 md:px-12 flex-grow w-full max-w-[100vw]">
+            <div className="flex flex-col items-center justify-center mt-16 px-4 sm:px-8 md:px-12 flex-grow w-full max-w-[100vw] z-10">
                 <motion.h1
                     variants={titleVariants}
                     initial="hidden"
@@ -197,7 +233,7 @@ export default function News() {
                     ) : (
                         <div className="space-y-12">
                             {Object.entries(groupedNews)
-                                .sort(([yearA], [yearB]) => parseInt(yearB) - parseInt(yearA)) // Trier par année décroissante
+                                .sort(([yearA], [yearB]) => parseInt(yearB) - parseInt(yearA))
                                 .map(([year, items]) => (
                                     <div key={year} className="space-y-6">
                                         <motion.h2
